@@ -2,79 +2,56 @@
 
 @layer base {
   :root {
-    --bg-primary: #000000;
-    --bg-secondary: #0A0A0A;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(255, 255, 255, 0.18);
+    --canvas: #FAFAFA;
+    --surface: #FFFFFF;
+    --ink: #09090B;
+    --hairline: #E4E4E7;
   }
 
   body {
-    background-color: #000000;
-    color: #FAFAFA;
+    background-color: var(--canvas);
+    color: var(--ink);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Swiss Architectural Grid & Hairline Elements */
+.swiss-hairline {
+  border: 1px solid #E4E4E7;
 }
 
-.glass-panel-elevated {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.swiss-hairline-t {
+  border-top: 1px solid #E4E4E7;
 }
 
-.glass-panel-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.18);
-  transform: translateY(-2px);
+.swiss-hairline-b {
+  border-bottom: 1px solid #E4E4E7;
 }
 
-/* Luxury Glows */
-.glow-indigo {
-  box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.3);
+.swiss-hairline-r {
+  border-right: 1px solid #E4E4E7;
 }
 
-.glow-emerald {
-  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.3);
+.swiss-hairline-l {
+  border-left: 1px solid #E4E4E7;
 }
 
-.glow-crimson {
-  box-shadow: 0 0 50px -10px rgba(239, 68, 68, 0.3);
-}
-
-/* Subtle dot grid backdrop */
-.bg-grid-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Ambient Radial Glow */
-.ambient-glow {
-  background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.15), transparent 70%);
-}
-
-.bleed-glow {
-  background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.08), transparent 80%);
-}
-
-/* Range input styling */
-input[type="range"] {
-  accent-color: #6366f1;
-}
-
-/* Tabular nums */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Strict Dieter Rams minimal controls */
+input[type="range"] {
+  accent-color: #09090B;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
 }

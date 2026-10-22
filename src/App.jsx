@@ -1,22 +1,27 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { BrandProvider } from './context/BrandContext';
-import OutreachCommandCenter from './pages/CommandCenter';
-import ClientDemo from './pages/ClientDemo';
+import OutreachCommandCenter from './pages/OutreachCommandCenter';
+import ClientForensicAuditView from './pages/ClientForensicAuditView';
+import CommercialProposalView from './pages/CommercialProposalView';
+import NotFoundView from './pages/NotFoundView';
 
 export default function App() {
   return (
     <BrandProvider>
       <HashRouter>
         <Routes>
-          {/* Internal Agency CRM Outreach Command Center */}
+          {/* Route 1: Billy Benjamin Consulting // Outreach Command Center */}
           <Route path="/" element={<OutreachCommandCenter />} />
-          
-          {/* Personalized Client Demo Environment */}
-          <Route path="/demo/:slug" element={<ClientDemo />} />
 
-          {/* Catch-all fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Route 2: Client-Facing Forensic Audit & Compound ROI Simulator */}
+          <Route path="/demo/:slug" element={<ClientForensicAuditView />} />
+
+          {/* Route 3: Print-Ready Commercial SOW & Implementation Roadmap */}
+          <Route path="/proposal/:slug" element={<CommercialProposalView />} />
+
+          {/* Fallback Graceful Boundary */}
+          <Route path="*" element={<NotFoundView />} />
         </Routes>
       </HashRouter>
     </BrandProvider>

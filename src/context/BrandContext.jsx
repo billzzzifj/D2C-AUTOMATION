@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { GLOBAL_D2C_TARGETS, INITIAL_COLUMNS } from '../data/globalD2CTargets';
+import { GLOBAL_D2C_TARGETS, PIPELINE_STAGES } from '../data/globalD2CTargets';
+import { calculateRevenueImpact } from '../utils/revenueMath';
 
 const BrandContext = createContext(null);
-
-const STORAGE_KEY = 'aura_d2c_targets_v1';
+const STORAGE_KEY = 'billy_benjamin_d2c_archive_v4';
 
 export function BrandProvider({ children }) {
   const [brands, setBrands] = useState(() => {
@@ -11,7 +11,7 @@ export function BrandProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed) && parsed.length === GLOBAL_D2C_TARGETS.length) {
           return parsed;
         }
       }
@@ -21,13 +21,13 @@ export function BrandProvider({ children }) {
     return GLOBAL_D2C_TARGETS;
   });
 
+  const [selectedBrandId, setSelectedBrandId] = useState(GLOBAL_D2C_TARGETS[0].id);
+  const [viewMode, setViewMode] = useState('table'); // 'table' | 'kanban'
   const [activeSector, setActiveSector] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPitchBrand, setSelectedPitchBrand] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Persist to localStorage
+  // Sync to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(brands));
@@ -38,154 +38,191 @@ export function BrandProvider({ children }) {
 
   const showToast = (message) => {
     setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3200);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const updateBrandStatus = (id, newStatus) => {
-    setBrands(prev =>
-      prev.map(b => (b.id === id ? { ...b, status: newStatus } : b))
-    );
-    showToast(`Updated status to "${newStatus}"`);
+  const updateBrandStatus = (brandId, newStatus) => {
+    setBrands(prev => prev.map(b => b.id === brandId ? { ...b, status: newStatus } : b));
+    showToast(`Status updated to: ${newStatus}`);
   };
 
-  const updateBrandMetrics = (id, newMetrics) => {
-    setBrands(prev =>
-      prev.map(b => (b.id === id ? { ...b, customMetrics: { ...b.customMetrics, ...newMetrics } } : b))
-    );
-    showToast(`Updated metrics for brand`);
+  const updateBrandContacts = (brandId, contacts) => {
+    setBrands(prev => prev.map(b => {
+      if (b.id !== brandId) return b;
+      return {
+        ...b,
+        email: contacts.email !== undefined ? contacts.email : b.email,
+        decisionMakerTitles: contacts.decisionMakerTitles !== undefined ? contacts.decisionMakerTitles : b.decisionMakerTitles,
+        instagram: {
+          ...b.instagram,
+          handle: contacts.instagramHandle !== undefined ? contacts.instagramHandle : b.instagram.handle,
+          url: contacts.instagramHandle !== undefined ? `https://instagram.com/${contacts.instagramHandle.replace('@', '')}` : b.instagram.url
+        },
+        linkedinSearchUrl: contacts.linkedinSearchUrl !== undefined ? contacts.linkedinSearchUrl : b.linkedinSearchUrl
+      };
+    }));
+    showToast('Contact intelligence saved to local storage');
   };
 
-  const addBrand = (newBrandData) => {
-    const slug = newBrandData.name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-
-    const newBrand = {
-      id: slug || `brand-${Date.now()}`,
-      slug: slug || `brand-${Date.now()}`,
-      name: newBrandData.name,
-      sector: newBrandData.sector || 'Skincare',
-      website: newBrandData.website || `https://${slug}.com`,
-      instagram: {
-        handle: newBrandData.instagramHandle || `@${slug}`,
-        url: `https://instagram.com/${(newBrandData.instagramHandle || slug).replace('@', '')}`
-      },
-      linkedin: newBrandData.linkedin || `https://linkedin.com/company/${slug}`,
-      email: newBrandData.email || `growth@${slug}.com`,
-      status: 'Targeted',
-      customMetrics: {
-        traffic: Number(newBrandData.traffic) || 100000,
-        aov: Number(newBrandData.aov) || 65
-      },
-      tagline: newBrandData.tagline || 'High-growth direct-to-consumer brand',
-      heroProduct: newBrandData.heroProduct || 'Signature Core Product Line',
-      frictionPoints: [
-        'Sub-optimal mobile checkout layout causing CVR drop',
-        'Lacks 1-tap Apple Pay anchor on initial view',
-        'Static imagery fails to convert mobile product detail page visitors'
-      ]
-    };
-
-    setBrands(prev => [newBrand, ...prev]);
-    showToast(`Added ${newBrand.name} to Pipeline`);
+  const updateBrandMetrics = (brandId, newMetrics) => {
+    setBrands(prev => prev.map(b => {
+      if (b.id !== brandId) return b;
+      return {
+        ...b,
+        metrics: {
+          ...b.metrics,
+          ...newMetrics
+        }
+      };
+    }));
+    showToast('Architectural metrics updated');
   };
 
-  const deleteBrand = (id) => {
-    setBrands(prev => prev.filter(b => b.id !== id));
-    showToast('Brand removed from pipeline');
-  };
-
-  const resetToDefaults = () => {
-    if (window.confirm('Reset all 20 target brands and pipeline stages back to factory defaults?')) {
+  const resetAllToDefaults = () => {
+    if (window.confirm('Reset all 20 brands back to master default archive state?')) {
       setBrands(GLOBAL_D2C_TARGETS);
       localStorage.removeItem(STORAGE_KEY);
-      showToast('Pipeline restored to default 20 D2C brands');
+      showToast('Master archive restored to factory defaults');
     }
   };
 
-  // Pipeline aggregate statistics
-  const stats = useMemo(() => {
-    let totalTraffic = 0;
-    let totalMonthlyBleed = 0;
-    let closedCount = 0;
-    let pitchSentCount = 0;
-    let reviewingCount = 0;
+  // Export Master CSV
+  const exportMasterCSV = () => {
+    const headers = [
+      "Brand Name",
+      "Slug",
+      "Sector",
+      "HQ Location",
+      "Website",
+      "Instagram",
+      "Contact Email",
+      "Pipeline Status",
+      "Monthly Traffic",
+      "Current CVR (%)",
+      "Current AOV ($)",
+      "Repeat Rate (%)",
+      "Implementation Retainer ($)",
+      "Turnaround (Days)",
+      "Est. Annual Recovered ($)",
+      "Primary UX Leak"
+    ];
 
-    brands.forEach(b => {
-      const traffic = b.customMetrics?.traffic || 0;
-      const aov = b.customMetrics?.aov || 0;
-      // Bleed difference: 2.8% - 1.2% = 1.6% (0.016)
-      const monthlyBleed = traffic * 0.016 * aov;
-      totalTraffic += traffic;
-      totalMonthlyBleed += monthlyBleed;
+    const rows = brands.map(b => {
+      const calc = calculateRevenueImpact({
+        traffic: b.metrics.monthlyTraffic,
+        baseCVR: b.metrics.currentCVR,
+        baseAOV: b.metrics.currentAOV,
+        baseRepeatRate: b.metrics.repeatPurchaseRate,
+        solutions: b.solutions,
+        activeSolutionIds: b.solutions.map(s => s.id),
+        implementationFeeUSD: b.metrics.implementationFeeUSD
+      });
 
-      if (b.status === 'Closed/Won') closedCount++;
-      if (b.status === 'DM/Pitch Sent') pitchSentCount++;
-      if (b.status === 'Demo Clicked/Reviewing') reviewingCount++;
+      return [
+        `"${b.name}"`,
+        `"${b.slug}"`,
+        `"${b.sector}"`,
+        `"${b.hqLocation}"`,
+        `"${b.website}"`,
+        `"${b.instagram.handle}"`,
+        `"${b.email}"`,
+        `"${b.status}"`,
+        b.metrics.monthlyTraffic,
+        b.metrics.currentCVR,
+        b.metrics.currentAOV,
+        b.metrics.repeatPurchaseRate,
+        b.metrics.implementationFeeUSD,
+        b.metrics.turnaroundDays,
+        Math.round(calc.annualRevenueRecovered),
+        `"${b.forensicAudit.primaryFrictionHeadline.replace(/"/g, '""')}"`
+      ].join(",");
     });
 
-    const totalAnnualBleed = totalMonthlyBleed * 12;
-    const closedWonValue = brands
-      .filter(b => b.status === 'Closed/Won')
-      .reduce((acc, b) => acc + (b.customMetrics.traffic * 0.016 * b.customMetrics.aov * 12), 0);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `BILLY_BENJAMIN_CONSULTING_D2C_TELEMETRY_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Exported Master Pipeline CSV');
+  };
+
+  // Aggregate telemetry
+  const aggregateMetrics = useMemo(() => {
+    let totalAddressableAnnualLeak = 0;
+    let activePipelineRetainerValue = 0;
+    let brandsInSequenceCount = 0;
+
+    brands.forEach(b => {
+      const calc = calculateRevenueImpact({
+        traffic: b.metrics.monthlyTraffic,
+        baseCVR: b.metrics.currentCVR,
+        baseAOV: b.metrics.currentAOV,
+        baseRepeatRate: b.metrics.repeatPurchaseRate,
+        solutions: b.solutions,
+        activeSolutionIds: b.solutions.map(s => s.id),
+        implementationFeeUSD: b.metrics.implementationFeeUSD
+      });
+
+      totalAddressableAnnualLeak += calc.annualRevenueRecovered;
+
+      if (b.status === 'Sequence Active' || b.status === 'Audit Viewed' || b.status === 'Call Booked') {
+        activePipelineRetainerValue += b.metrics.implementationFeeUSD;
+        brandsInSequenceCount++;
+      } else if (b.status === 'Closed Retainer') {
+        activePipelineRetainerValue += b.metrics.implementationFeeUSD;
+      }
+    });
 
     return {
-      totalBrands: brands.length,
-      totalTraffic,
-      totalMonthlyBleed,
-      totalAnnualBleed,
-      closedCount,
-      pitchSentCount,
-      reviewingCount,
-      closedWonValue,
-      winRate: brands.length > 0 ? ((closedCount / brands.length) * 100).toFixed(0) : 0
+      totalAddressableAnnualLeak,
+      activePipelineRetainerValue,
+      brandsInSequenceCount,
+      totalBrandsCount: brands.length
     };
   }, [brands]);
 
   // Filtered brands
   const filteredBrands = useMemo(() => {
     return brands.filter(b => {
-      const matchesSector = activeSector === 'All' || b.sector.toLowerCase() === activeSector.toLowerCase();
+      const matchesSector = activeSector === 'All' || b.sector === activeSector;
       const query = searchQuery.toLowerCase().trim();
       const matchesQuery = !query ||
         b.name.toLowerCase().includes(query) ||
         b.sector.toLowerCase().includes(query) ||
-        b.instagram.handle.toLowerCase().includes(query);
+        b.instagram.handle.toLowerCase().includes(query) ||
+        b.hqLocation.toLowerCase().includes(query);
       return matchesSector && matchesQuery;
     });
   }, [brands, activeSector, searchQuery]);
 
-  // Unique sectors for filtering
-  const sectors = useMemo(() => {
-    const list = Array.from(new Set(GLOBAL_D2C_TARGETS.map(b => b.sector)));
-    return ['All', ...list];
-  }, []);
+  const selectedBrand = useMemo(() => {
+    return brands.find(b => b.id === selectedBrandId) || brands[0];
+  }, [brands, selectedBrandId]);
 
   return (
     <BrandContext.Provider
       value={{
         brands: filteredBrands,
         allBrands: brands,
-        columns: INITIAL_COLUMNS,
+        stages: PIPELINE_STAGES,
+        selectedBrand,
+        selectedBrandId,
+        setSelectedBrandId,
+        viewMode,
+        setViewMode,
         activeSector,
         setActiveSector,
         searchQuery,
         setSearchQuery,
-        sectors,
-        stats,
+        aggregateMetrics,
         updateBrandStatus,
+        updateBrandContacts,
         updateBrandMetrics,
-        addBrand,
-        deleteBrand,
-        resetToDefaults,
-        selectedPitchBrand,
-        setSelectedPitchBrand,
-        isAddModalOpen,
-        setIsAddModalOpen,
+        resetAllToDefaults,
+        exportMasterCSV,
         toastMessage,
         showToast
       }}
