@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { BrandProvider } from './context/BrandContext';
-import CommandCenter from './pages/CommandCenter';
+import OutreachCommandCenter from './pages/CommandCenter';
 import ClientDemo from './pages/ClientDemo';
 
 export default function App() {
@@ -9,8 +9,8 @@ export default function App() {
     <BrandProvider>
       <HashRouter>
         <Routes>
-          {/* Internal Agency CRM Kanban Command Center */}
-          <Route path="/" element={<CommandCenter />} />
+          {/* Internal Agency CRM Outreach Command Center */}
+          <Route path="/" element={<OutreachCommandCenter />} />
           
           {/* Personalized Client Demo Environment */}
           <Route path="/demo/:slug" element={<ClientDemo />} />

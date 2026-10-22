@@ -6,9 +6,9 @@ import PitchGeneratorModal from '../components/crm/PitchGeneratorModal';
 import AddBrandModal from '../components/crm/AddBrandModal';
 import Toast from '../components/common/Toast';
 import { useBrands } from '../context/BrandContext';
-import { Search, Filter, ShieldCheck, Sparkles } from 'lucide-react';
+import { Search, Sparkles, ShieldCheck } from 'lucide-react';
 
-export default function CommandCenter() {
+export function OutreachCommandCenter() {
   const { 
     brands, 
     allBrands, 
@@ -25,7 +25,7 @@ export default function CommandCenter() {
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-indigo-600/[0.07] blur-[140px] pointer-events-none" />
       <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-emerald-600/[0.03] blur-[160px] pointer-events-none" />
 
-      {/* Top Bar */}
+      {/* Main Navigation Bar */}
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -35,10 +35,10 @@ export default function CommandCenter() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-white/[0.04] border border-white/[0.08] text-zinc-300 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Agency Internal Pipeline</span>
+              <span>Billy Benjamin Consulting • Outreach Pipeline</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-sans">
-              Global D2C Client Acquisition OS
+              Global D2C Client Acquisition Engine
             </h1>
             <p className="text-sm text-zinc-400 mt-1 max-w-2xl">
               Targeting $1M–$50M/yr brands with automated revenue-bleed audits, AI visualizer simulations, and multi-channel outreach.
@@ -105,3 +105,5 @@ export default function CommandCenter() {
     </div>
   );
 }
+
+export default OutreachCommandCenter;

@@ -58,7 +58,7 @@ export default function FrictionAuditTeardown({ brand }) {
         {/* Before vs After Wireframe Teardown */}
         <div className="p-6 rounded-2xl bg-black/70 border border-white/[0.08]">
           <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider font-mono">
-            Architecture Comparison: Legacy Mobile Flow vs AURA Linear OS
+            Architecture Comparison: Legacy Mobile Flow vs Billy Benjamin Consulting Architecture
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -92,12 +92,12 @@ export default function FrictionAuditTeardown({ brand }) {
               </div>
             </div>
 
-            {/* AURA Column */}
+            {/* Billy Benjamin Consulting Column */}
             <div className="p-5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>AURA Architecture (2.8% CVR)</span>
+                  <span>Billy Benjamin Consulting Architecture (2.8% CVR)</span>
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400">14-Day Deployment</span>
               </div>

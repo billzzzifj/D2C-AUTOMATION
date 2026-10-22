@@ -156,7 +156,7 @@ export default function BrandCard({ brand }) {
             <LinkedInIcon className="w-3.5 h-3.5" />
           </a>
           <a
-            href={`mailto:${brand.email}?subject=${encodeURIComponent(`Quick question on ${brand.name}'s mobile checkout CVR`)}&body=${encodeURIComponent(`Hey ${brand.name} team,\n\nNoticed a mobile checkout friction point that is likely costing ${brand.name} ${formatCurrency(monthlyBleed)} in lost monthly revenue. Prepared a custom audit and 3D visualizer.\n\nLink: ${window.location.origin}${window.location.pathname}${demoUrl}\n\nBest,\nAURA Digital Director`)}`}
+            href={`mailto:${brand.email}?subject=${encodeURIComponent(`Quick question on ${brand.name}'s mobile checkout CVR`)}&body=${encodeURIComponent(`Hey ${brand.name} team,\n\nNoticed a mobile checkout friction point that is likely costing ${brand.name} ${formatCurrency(monthlyBleed)} in lost monthly revenue. Prepared a custom audit and 3D visualizer.\n\nLink: ${window.location.origin}${window.location.pathname}${demoUrl}\n\nBest,\nBilly Benjamin Consulting Digital Director`)}`}
             title={`Email: ${brand.email}`}
             className="p-1.5 rounded-lg bg-white/[0.03] hover:bg-amber-500/20 text-zinc-400 hover:text-amber-400 border border-white/[0.06] hover:border-amber-500/30 transition-all"
             onClick={(e) => e.stopPropagation()}

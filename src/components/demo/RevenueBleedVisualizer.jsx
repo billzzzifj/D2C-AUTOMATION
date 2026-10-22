@@ -232,7 +232,7 @@ export default function RevenueBleedVisualizer({
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-emerald-300 font-medium">
-                    AURA Optimized Architecture ({formatPercent(optimizedCvr)} CVR)
+                    Billy Benjamin Consulting Architecture ({formatPercent(optimizedCvr)} CVR)
                   </span>
                   <span className="text-emerald-500 font-mono">
                     • {formatNumber(optimizedMonthlyOrders)} orders/mo

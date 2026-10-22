@@ -115,7 +115,7 @@ export default function AiAssetSimulator({ brand }) {
             <div className="flex justify-end items-start">
               <div className="px-3 py-1.5 rounded-xl bg-indigo-500/20 backdrop-blur-md border border-indigo-500/40 text-indigo-300 text-xs font-semibold flex items-center gap-2 shadow-lg">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                <span>AURA 3D AI Campaign Pipeline ($4,800)</span>
+                <span>Billy Benjamin Consulting 3D AI Pipeline ($4,800)</span>
               </div>
             </div>
 
@@ -269,7 +269,7 @@ export default function AiAssetSimulator({ brand }) {
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-400" />
                 <h4 className="font-semibold text-sm text-indigo-200">
-                  AURA 3D AI Pipeline Retainer
+                  Billy Benjamin Consulting 3D AI Pipeline Retainer
                 </h4>
               </div>
               <span className="text-lg font-bold text-emerald-400 font-mono tabular-nums">

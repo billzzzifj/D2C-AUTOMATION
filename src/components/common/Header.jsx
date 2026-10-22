@@ -1,5 +1,6 @@
 import React from 'react';
-import { Layers, Plus, RefreshCw, Sparkles, ExternalLink, Activity } from 'lucide-react';
+import { Plus, RefreshCw, Sparkles } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 import { useBrands } from '../../context/BrandContext';
 
 export default function Header() {
@@ -9,24 +10,20 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-black/75 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
-        {/* Brand identity */}
+        {/* Brand identity: BILLY BENJAMIN CONSULTING */}
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 flex items-center justify-center shadow-lg shadow-indigo-500/20 border border-indigo-400/30">
-            <Layers className="w-5 h-5 text-white" />
+          <div className="flex items-center px-3 py-1.5 rounded-xl bg-white shadow-md border border-white/20 select-none">
+            <BrandLogo />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base tracking-tight text-white font-sans">
-                AURA <span className="text-zinc-500 font-normal">/</span> OS
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                D2C Acquisition Engine
-              </span>
-            </div>
-            <p className="text-[11px] text-zinc-400 hidden sm:block">
-              Client Pipeline & Dynamic Revenue Bleed Simulator
-            </p>
+          
+          <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-white/[0.08]">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Pipeline
+            </span>
+            <span className="text-[11px] text-zinc-400 font-sans">
+              D2C Revenue Optimization & AI Strategy
+            </span>
           </div>
         </div>
 

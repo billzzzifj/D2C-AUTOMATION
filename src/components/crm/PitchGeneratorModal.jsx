@@ -53,7 +53,7 @@ Open to sending over a 90-second Loom teardown if helpful.
 
 Best,
 Marcus Vance
-Director of Performance Architecture, AURA`,
+Director of Performance Architecture, Billy Benjamin Consulting`,
 
     linkedin: `Hi ${brand.name} team — huge fan of what you're building in the ${brand.sector} space. 
 
