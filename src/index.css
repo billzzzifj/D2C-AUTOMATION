@@ -1,11 +1,20 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --canvas: #FAFAFA;
     --surface: #FFFFFF;
     --ink: #09090B;
     --hairline: #E4E4E7;
+  }
+
+  .dark {
+    --canvas: #000000;
+    --surface: #09090B;
+    --ink: #FAFAFA;
+    --hairline: #27272A;
   }
 
   body {
@@ -22,20 +31,8 @@
   border: 1px solid #E4E4E7;
 }
 
-.swiss-hairline-t {
-  border-top: 1px solid #E4E4E7;
-}
-
-.swiss-hairline-b {
-  border-bottom: 1px solid #E4E4E7;
-}
-
-.swiss-hairline-r {
-  border-right: 1px solid #E4E4E7;
-}
-
-.swiss-hairline-l {
-  border-left: 1px solid #E4E4E7;
+.dark .swiss-hairline {
+  border-color: #27272A;
 }
 
 .tabular-nums {
@@ -47,11 +44,19 @@ input[type="range"] {
   accent-color: #09090B;
 }
 
+.dark input[type="range"] {
+  accent-color: #FAFAFA;
+}
+
 @media print {
   .no-print {
     display: none !important;
   }
   .print-only {
     display: block !important;
+  }
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
   }
 }

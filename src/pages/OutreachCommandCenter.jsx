@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
+import ThemeToggle from '../components/ThemeToggle';
+import { useTheme } from '../context/ThemeContext';
 import { useBrands } from '../context/BrandContext';
 import { calculateRevenueImpact, formatCurrency, formatNumber, formatPercent } from '../utils/revenueMath';
 import { 
@@ -24,10 +26,13 @@ import {
   UserCheck,
   Building,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function OutreachCommandCenter() {
+  const { theme } = useTheme();
   const {
     brands,
     allBrands,
@@ -53,6 +58,7 @@ export default function OutreachCommandCenter() {
 
   const [activeInspectorTab, setActiveInspectorTab] = useState('audit'); // 'audit' | 'sequence' | 'sow'
   const [copiedTouchIndex, setCopiedTouchIndex] = useState(null);
+  const [lockThemeToLink, setLockThemeToLink] = useState(true);
 
   // Editable contacts state bound to selected brand
   const [editEmail, setEditEmail] = useState(selectedBrand.email);
@@ -96,8 +102,9 @@ export default function OutreachCommandCenter() {
     implementationFeeUSD: selectedBrand.metrics.implementationFeeUSD
   });
 
-  const demoLink = `${window.location.origin}${window.location.pathname}#/demo/${selectedBrand.slug}`;
-  const proposalLink = `${window.location.origin}${window.location.pathname}#/proposal/${selectedBrand.slug}`;
+  const themeQuery = lockThemeToLink ? `?theme=${theme}` : '';
+  const demoLink = `${window.location.origin}${window.location.pathname}#/demo/${selectedBrand.slug}${themeQuery}`;
+  const proposalLink = `${window.location.origin}${window.location.pathname}#/proposal/${selectedBrand.slug}${themeQuery}`;
 
   // 4-Stage Automated Sequence Scripts
   const sequenceTouches = [
@@ -184,25 +191,28 @@ Billy Benjamin`
   const sectors = ["All", "Skincare", "Bodycare", "Clinical Skincare", "Medicated Skincare", "Personal Care", "Fashion/Streetwear", "Functional F&B", "Home/Fragrance/Tech"];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-zinc-950 flex flex-col font-sans selection:bg-zinc-950 selection:text-white">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-950 dark:text-zinc-50 transition-colors duration-150 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-950">
       
       {/* Top Institutional Bar */}
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-zinc-200">
+      <header className="sticky top-0 z-40 w-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
         <div className="w-full px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
           
           {/* Logo & Platform Identifier */}
           <div className="flex items-center gap-4">
             <BrandLogo showBadge={true} />
-            <div className="hidden xl:flex items-center pl-4 border-l border-zinc-200 text-xs font-mono text-zinc-500">
+            <div className="hidden xl:flex items-center pl-4 border-l border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 dark:text-zinc-400">
               <span>GLOBAL D2C REVENUE INTELLIGENCE OS</span>
             </div>
           </div>
 
           {/* Right Top Actions */}
           <div className="flex items-center gap-3">
+            {/* Mechanical Theme Toggle */}
+            <ThemeToggle />
+
             <button
               onClick={resetAllToDefaults}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
               title="Reset all 20 brands back to default data"
             >
               <RefreshCw size={14} strokeWidth={1.5} />
@@ -211,7 +221,7 @@ Billy Benjamin`
 
             <button
               onClick={exportMasterCSV}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-semibold uppercase tracking-wider bg-zinc-950 hover:bg-zinc-800 text-white border border-zinc-950 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-semibold uppercase tracking-wider bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50 transition-colors shadow-sm"
             >
               <Download size={14} strokeWidth={1.5} />
               <span>Export Master CSV</span>
@@ -220,46 +230,46 @@ Billy Benjamin`
         </div>
 
         {/* Top Financial Telemetry Strip (Dieter Rams Architectural Matrix) */}
-        <div className="w-full bg-zinc-50 border-t border-b border-zinc-200 grid grid-cols-2 md:grid-cols-4 divide-x divide-zinc-200 text-left">
+        <div className="w-full bg-zinc-100/80 dark:bg-zinc-900/80 border-t border-b border-zinc-200 dark:border-zinc-800 grid grid-cols-2 md:grid-cols-4 divide-x divide-zinc-200 dark:divide-zinc-800 text-left transition-colors">
           
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
               Total Addressable Leak (20 Brands)
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 tabular-nums">
+            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
               {formatCurrency(aggregateMetrics.totalAddressableAnnualLeak, true)}
-              <span className="text-xs font-normal text-zinc-500 ml-1">/ yr</span>
+              <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400 ml-1">/ yr</span>
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
               Active Pipeline Retainer Value
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 tabular-nums">
+            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
               {formatCurrency(aggregateMetrics.activePipelineRetainerValue)}
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
               Brands In Outbound Sequence
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 tabular-nums">
-              {aggregateMetrics.brandsInSequenceCount} <span className="text-xs font-normal text-zinc-500">/ 20</span>
+            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
+              {aggregateMetrics.brandsInSequenceCount} <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">/ 20</span>
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6 flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
                 Targeted ARR Universe
               </span>
-              <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 tabular-nums">
+              <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
                 $5M – $100M+
               </span>
             </div>
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
           </div>
 
         </div>
@@ -269,35 +279,35 @@ Billy Benjamin`
       <div className="flex-1 flex flex-col lg:flex-row w-full overflow-hidden">
         
         {/* Left Side: Table / Kanban Matrix */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 bg-white">
+        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 transition-colors">
           
           {/* Controls Bar: Filters & View Modes */}
-          <div className="p-3 lg:px-6 border-b border-zinc-200 bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="p-3 lg:px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 transition-colors">
             
             {/* Search Input */}
             <div className="relative w-full sm:w-72">
-              <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
               <input
                 type="text"
                 placeholder="Search 20 global targets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs font-mono border border-zinc-200 bg-zinc-50 focus:bg-white focus:outline-none focus:border-zinc-900 rounded-none"
+                className="w-full pl-9 pr-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none rounded-none"
               />
             </div>
 
             {/* Sector Filters & View Mode */}
             <div className="flex items-center gap-2 overflow-x-auto">
-              <div className="flex items-center border border-zinc-200 divide-x divide-zinc-200 text-xs font-mono">
+              <div className="flex items-center border border-zinc-200 dark:border-zinc-800 divide-x divide-zinc-200 dark:divide-zinc-800 text-xs font-mono">
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-zinc-950 text-white font-semibold' : 'bg-white text-zinc-600 hover:bg-zinc-50'}`}
+                  className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 font-semibold' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                 >
                   TABLE
                 </button>
                 <button
                   onClick={() => setViewMode('kanban')}
-                  className={`px-3 py-1.5 transition-colors ${viewMode === 'kanban' ? 'bg-zinc-950 text-white font-semibold' : 'bg-white text-zinc-600 hover:bg-zinc-50'}`}
+                  className={`px-3 py-1.5 transition-colors ${viewMode === 'kanban' ? 'bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 font-semibold' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                 >
                   PIPELINE (5)
                 </button>
@@ -307,7 +317,7 @@ Billy Benjamin`
               <select
                 value={activeSector}
                 onChange={(e) => setActiveSector(e.target.value)}
-                className="text-xs font-mono border border-zinc-200 bg-white px-2.5 py-1.5 focus:outline-none focus:border-zinc-900"
+                className="text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 px-2.5 py-1.5 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100"
               >
                 {sectors.map(s => (
                   <option key={s} value={s}>{s}</option>
@@ -321,7 +331,7 @@ Billy Benjamin`
             <div className="flex-1 overflow-x-auto overflow-y-auto max-h-[calc(100vh-190px)]">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-zinc-200 bg-zinc-50 font-mono text-[10px] text-zinc-500 uppercase tracking-wider sticky top-0 z-10">
+                  <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 font-mono text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider sticky top-0 z-10 transition-colors">
                     <th className="py-2.5 px-4 font-medium">Brand & Location</th>
                     <th className="py-2.5 px-3 font-medium">Sector</th>
                     <th className="py-2.5 px-3 font-medium text-right">Traffic/Mo</th>
@@ -332,7 +342,7 @@ Billy Benjamin`
                     <th className="py-2.5 px-4 font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 font-mono">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/80 font-mono">
                   {brands.map(brand => {
                     const isSelected = brand.id === selectedBrandId;
                     const calc = calculateRevenueImpact({
@@ -350,39 +360,49 @@ Billy Benjamin`
                         key={brand.id}
                         onClick={() => setSelectedBrandId(brand.id)}
                         className={`cursor-pointer transition-colors ${
-                          isSelected ? 'bg-zinc-100 font-medium' : 'hover:bg-zinc-50'
+                          isSelected 
+                            ? 'bg-zinc-100 dark:bg-zinc-900 font-medium' 
+                            : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                         }`}
                       >
                         <td className="py-3 px-4">
-                          <div className="font-sans font-bold text-zinc-950 text-sm leading-tight flex items-center gap-1.5">
+                          <div className="font-sans font-bold text-zinc-950 dark:text-zinc-50 text-sm leading-tight flex items-center gap-1.5">
                             <span>{brand.name}</span>
-                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-zinc-950" />}
+                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 dark:bg-zinc-100" />}
                           </div>
-                          <span className="text-[11px] text-zinc-500 font-mono block">
+                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block">
                             {brand.hqLocation}
                           </span>
                         </td>
-                        <td className="py-3 px-3 text-zinc-600 font-sans">
+                        <td className="py-3 px-3 text-zinc-600 dark:text-zinc-300 font-sans">
                           {brand.sector}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 tabular-nums font-mono">
+                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
                           {formatNumber(brand.metrics.monthlyTraffic)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 tabular-nums font-mono">
+                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
                           {formatPercent(brand.metrics.currentCVR)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 tabular-nums font-mono">
+                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
                           ${brand.metrics.currentAOV}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-950 font-bold tabular-nums font-mono">
+                        <td className="py-3 px-3 text-right text-zinc-950 dark:text-zinc-50 font-bold tabular-nums font-mono">
                           {formatCurrency(calc.annualRevenueRecovered, true)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-600 tabular-nums font-mono">
+                        <td className="py-3 px-3 text-right text-zinc-600 dark:text-zinc-400 tabular-nums font-mono">
                           {formatCurrency(brand.metrics.implementationFeeUSD)}
                         </td>
                         <td className="py-3 px-4">
                           <span className={`inline-block px-2 py-0.5 text-[10px] uppercase font-mono border ${
-                            stages.find(s => s.id === brand.status)?.badge || 'border-zinc-200 bg-zinc-50'
+                            brand.status === 'Closed Retainer'
+                              ? 'border-zinc-950 bg-black text-white dark:border-zinc-200 dark:bg-white dark:text-zinc-950 font-bold'
+                              : brand.status === 'Call Booked'
+                              ? 'border-zinc-700 bg-zinc-800 text-zinc-100 dark:border-zinc-300 dark:bg-zinc-200 dark:text-zinc-900'
+                              : brand.status === 'Audit Viewed'
+                              ? 'border-zinc-500 bg-zinc-700 text-zinc-100 dark:border-zinc-400 dark:bg-zinc-300 dark:text-zinc-900'
+                              : brand.status === 'Sequence Active'
+                              ? 'border-zinc-400 bg-zinc-200 text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 font-semibold'
+                              : 'border-zinc-300 bg-zinc-100 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
                           }`}>
                             {brand.status}
                           </span>
@@ -399,12 +419,12 @@ Billy Benjamin`
               {stages.map(stage => {
                 const stageBrands = brands.filter(b => b.status === stage.id);
                 return (
-                  <div key={stage.id} className="w-72 flex flex-col bg-zinc-50 border border-zinc-200">
-                    <div className="p-3 border-b border-zinc-200 bg-white flex items-center justify-between">
-                      <span className="font-mono text-xs font-semibold text-zinc-950 uppercase tracking-wider">
+                  <div key={stage.id} className="w-72 flex flex-col bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 transition-colors">
+                    <div className="p-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex items-center justify-between">
+                      <span className="font-mono text-xs font-semibold text-zinc-950 dark:text-zinc-50 uppercase tracking-wider">
                         {stage.label}
                       </span>
-                      <span className="text-xs font-mono px-1.5 py-0.5 bg-zinc-100 border border-zinc-200">
+                      <span className="text-xs font-mono px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700">
                         {stageBrands.length}
                       </span>
                     </div>
@@ -414,21 +434,21 @@ Billy Benjamin`
                         <div
                           key={b.id}
                           onClick={() => setSelectedBrandId(b.id)}
-                          className={`p-3 bg-white border cursor-pointer transition-all ${
+                          className={`p-3 bg-white dark:bg-zinc-950 border cursor-pointer transition-all ${
                             b.id === selectedBrandId
-                              ? 'border-zinc-950 shadow-sm'
-                              : 'border-zinc-200 hover:border-zinc-400'
+                              ? 'border-2 border-zinc-950 dark:border-zinc-100 shadow-sm'
+                              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600'
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-sans font-bold text-sm text-zinc-950">{b.name}</span>
-                            <span className="text-[10px] font-mono text-zinc-500">${b.metrics.currentAOV}</span>
+                            <span className="font-sans font-bold text-sm text-zinc-950 dark:text-zinc-50">{b.name}</span>
+                            <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">${b.metrics.currentAOV}</span>
                           </div>
-                          <span className="text-[11px] text-zinc-500 font-mono block mt-0.5">{b.sector}</span>
+                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block mt-0.5">{b.sector}</span>
                           
-                          <div className="mt-2 pt-2 border-t border-zinc-100 flex items-center justify-between text-[10px] font-mono">
-                            <span className="text-zinc-500">{formatNumber(b.metrics.monthlyTraffic)}/mo</span>
-                            <span className="font-bold text-zinc-950">Fee: {formatCurrency(b.metrics.implementationFeeUSD)}</span>
+                          <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[10px] font-mono">
+                            <span className="text-zinc-500 dark:text-zinc-400">{formatNumber(b.metrics.monthlyTraffic)}/mo</span>
+                            <span className="font-bold text-zinc-950 dark:text-zinc-100">Fee: {formatCurrency(b.metrics.implementationFeeUSD)}</span>
                           </div>
                         </div>
                       ))}
@@ -440,34 +460,34 @@ Billy Benjamin`
           )}
 
           {/* Left Footer: Brand Counter */}
-          <div className="p-2.5 px-4 border-t border-zinc-200 bg-zinc-50 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+          <div className="p-2.5 px-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[11px] font-mono text-zinc-500 dark:text-zinc-400 flex items-center justify-between transition-colors">
             <span>SHOWING {brands.length} OF 20 VERIFIED GLOBAL ACCOUNTS</span>
-            <span>DIETER RAMS ARCHITECTURAL MONOCHROME v4.0</span>
+            <span>DIETER RAMS ARCHITECTURAL MONOCHROME // DUAL-THEME ENGINE</span>
           </div>
         </div>
 
         {/* Right Side: Split-Screen Forensic Inspector (680px Width) */}
-        <div className="w-full lg:w-[680px] bg-white flex flex-col shrink-0 overflow-y-auto max-h-[calc(100vh-140px)] border-l border-zinc-200">
+        <div className="w-full lg:w-[680px] bg-white dark:bg-zinc-950 flex flex-col shrink-0 overflow-y-auto max-h-[calc(100vh-140px)] border-l border-zinc-200 dark:border-zinc-800 transition-colors">
           
           {/* Inspector Header */}
-          <div className="p-5 border-b border-zinc-200 bg-zinc-50">
+          <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 transition-colors">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-black font-sans uppercase tracking-tight text-zinc-950">
+                  <h2 className="text-2xl font-black font-sans uppercase tracking-tight text-zinc-950 dark:text-zinc-50">
                     {selectedBrand.name}
                   </h2>
                   <a
                     href={selectedBrand.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-zinc-500 hover:text-zinc-950 p-1"
+                    className="text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 p-1 transition-colors"
                     title={`Visit ${selectedBrand.website}`}
                   >
                     <ExternalLink size={14} strokeWidth={1.5} />
                   </a>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-mono text-zinc-600 mt-1">
+                <div className="flex items-center gap-3 text-xs font-mono text-zinc-600 dark:text-zinc-400 mt-1">
                   <span>{selectedBrand.sector}</span>
                   <span>•</span>
                   <span>{selectedBrand.hqLocation}</span>
@@ -478,11 +498,11 @@ Billy Benjamin`
 
               {/* Status Switcher Selector */}
               <div className="flex flex-col items-end">
-                <span className="text-[10px] font-mono text-zinc-500 uppercase">Stage Status</span>
+                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase">Stage Status</span>
                 <select
                   value={selectedBrand.status}
                   onChange={(e) => updateBrandStatus(selectedBrand.id, e.target.value)}
-                  className="text-xs font-mono font-semibold border border-zinc-300 bg-white px-2 py-1 mt-0.5 focus:outline-none focus:border-zinc-950"
+                  className="text-xs font-mono font-semibold border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 px-2 py-1 mt-0.5 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100"
                 >
                   {stages.map(s => (
                     <option key={s.id} value={s.id}>{s.label}</option>
@@ -492,18 +512,18 @@ Billy Benjamin`
             </div>
 
             {/* Quick 1-Click Action Row */}
-            <div className="mt-4 pt-3 border-t border-zinc-200 flex flex-wrap items-center gap-2">
+            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center gap-2">
               <Link
-                to={`/demo/${selectedBrand.slug}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 transition-colors"
+                to={`/demo/${selectedBrand.slug}${themeQuery}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50 transition-colors shadow-sm"
               >
                 <Eye size={14} strokeWidth={1.5} />
                 <span>Launch Client Audit (/#/demo/{selectedBrand.slug})</span>
               </Link>
 
               <Link
-                to={`/proposal/${selectedBrand.slug}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-900 transition-colors"
+                to={`/proposal/${selectedBrand.slug}${themeQuery}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition-colors"
               >
                 <FileText size={14} strokeWidth={1.5} />
                 <span>SOW Proposal (/#/proposal/{selectedBrand.slug})</span>
@@ -513,7 +533,7 @@ Billy Benjamin`
                 href={selectedBrand.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700"
+                className="p-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
                 title={`Open Instagram: ${selectedBrand.instagram.handle}`}
               >
                 IG: {selectedBrand.instagram.handle}
@@ -523,22 +543,40 @@ Billy Benjamin`
                 href={selectedBrand.linkedinSearchUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700"
+                className="p-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
                 title="Search Decision Makers on LinkedIn"
               >
                 LinkedIn DM
               </a>
             </div>
+
+            {/* Outreach Link Theme Lock Checkbox */}
+            <div className="mt-3 pt-2.5 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs font-mono">
+              <label className="flex items-center gap-2 cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-200 select-none">
+                <input
+                  type="checkbox"
+                  checked={lockThemeToLink}
+                  onChange={(e) => setLockThemeToLink(e.target.checked)}
+                  className="rounded-none border-zinc-300 dark:border-zinc-700 accent-zinc-950 dark:accent-zinc-100 cursor-pointer"
+                />
+                <span>Lock Client Link to Current Theme (?theme={theme})</span>
+              </label>
+
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase">
+                {theme === 'dark' ? 'Obsidian link' : 'Daylight link'}
+              </span>
+            </div>
+
           </div>
 
           {/* Sub-Tabs Selector */}
-          <div className="flex border-b border-zinc-200 bg-white text-xs font-mono">
+          <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-mono transition-colors">
             <button
               onClick={() => setActiveInspectorTab('audit')}
               className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
                 activeInspectorTab === 'audit'
-                  ? 'border-zinc-950 text-zinc-950 font-bold bg-white'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 bg-zinc-50'
+                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
               }`}
             >
               SUB-TAB A: TEARDOWN & CONTACTS
@@ -547,8 +585,8 @@ Billy Benjamin`
               onClick={() => setActiveInspectorTab('sequence')}
               className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
                 activeInspectorTab === 'sequence'
-                  ? 'border-zinc-950 text-zinc-950 font-bold bg-white'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 bg-zinc-50'
+                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
               }`}
             >
               SUB-TAB B: 4-STAGE OUTREACH
@@ -557,8 +595,8 @@ Billy Benjamin`
               onClick={() => setActiveInspectorTab('sow')}
               className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
                 activeInspectorTab === 'sow'
-                  ? 'border-zinc-950 text-zinc-950 font-bold bg-white'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 bg-zinc-50'
+                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
               }`}
             >
               SUB-TAB C: SOW & CONFIG
@@ -573,7 +611,7 @@ Billy Benjamin`
               <div className="space-y-6 text-xs">
                 
                 {/* Executive Primary Leak Box */}
-                <div className="p-4 bg-zinc-950 text-white border border-zinc-950">
+                <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-800">
                   <div className="flex items-center gap-2 text-zinc-400 font-mono text-[10px] uppercase mb-1">
                     <ShieldAlert size={14} strokeWidth={1.5} />
                     <span>Primary Architectural Friction Headline</span>
@@ -585,13 +623,13 @@ Billy Benjamin`
 
                 {/* Brand Strengths */}
                 <div>
-                  <h4 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">
+                  <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-2">
                     Validated Brand Equity & Moats
                   </h4>
                   <ul className="space-y-1.5 font-sans">
                     {selectedBrand.forensicAudit.brandStrengths.map((str, idx) => (
-                      <li key={idx} className="p-2.5 bg-zinc-50 border border-zinc-200 text-zinc-800 flex items-start gap-2">
-                        <span className="font-mono text-zinc-400 font-bold">{idx + 1}.</span>
+                      <li key={idx} className="p-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 flex items-start gap-2">
+                        <span className="font-mono text-zinc-400 dark:text-zinc-500 font-bold">{idx + 1}.</span>
                         <span>{str}</span>
                       </li>
                     ))}
@@ -600,30 +638,30 @@ Billy Benjamin`
 
                 {/* 3 Technical Bottlenecks */}
                 <div>
-                  <h4 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">
+                  <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-2">
                     Granular Technical / UX Failure Modes
                   </h4>
                   <div className="space-y-2">
                     {selectedBrand.forensicAudit.technicalBottlenecks.map((bot, idx) => (
-                      <div key={idx} className="p-3 border border-zinc-200 bg-white">
-                        <span className="font-mono text-[10px] uppercase text-zinc-500 block mb-1">
+                      <div key={idx} className="p-3 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <span className="font-mono text-[10px] uppercase text-zinc-500 dark:text-zinc-400 block mb-1">
                           BOTTLENECK {idx + 1}
                         </span>
-                        <p className="text-zinc-800 leading-relaxed font-sans">{bot}</p>
+                        <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans">{bot}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Inline-Editable Contact Intelligence Form */}
-                <div className="pt-4 border-t border-zinc-200">
+                <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
+                    <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
                       Contact & Decision-Maker Intelligence
                     </h4>
                     <button
                       onClick={saveContacts}
-                      className="text-xs font-mono font-bold bg-zinc-900 text-white px-2.5 py-1 hover:bg-zinc-800 transition-colors"
+                      className="text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 px-2.5 py-1 transition-colors"
                     >
                       Save Contacts
                     </button>
@@ -631,32 +669,32 @@ Billy Benjamin`
 
                   <div className="grid grid-cols-2 gap-3 font-mono">
                     <div>
-                      <label className="text-[10px] text-zinc-500 block mb-1">Corporate Email</label>
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 block mb-1">Corporate Email</label>
                       <input
                         type="email"
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-200 bg-zinc-50 focus:bg-white focus:outline-none focus:border-zinc-950"
+                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-zinc-500 block mb-1">Instagram Handle</label>
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 block mb-1">Instagram Handle</label>
                       <input
                         type="text"
                         value={editInstagram}
                         onChange={(e) => setEditInstagram(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-200 bg-zinc-50 focus:bg-white focus:outline-none focus:border-zinc-950"
+                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
                     <div className="col-span-2">
-                      <label className="text-[10px] text-zinc-500 block mb-1">Target Decision Maker Roles</label>
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 block mb-1">Target Decision Maker Roles</label>
                       <input
                         type="text"
                         value={editTitles}
                         onChange={(e) => setEditTitles(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-200 bg-zinc-50 focus:bg-white focus:outline-none focus:border-zinc-950 font-sans"
+                        className="w-full px-2.5 py-1.5 text-xs border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none font-sans"
                       />
                     </div>
                   </div>
@@ -668,46 +706,46 @@ Billy Benjamin`
             {/* SUB-TAB B: 4-STAGE OUTREACH SEQUENCE GENERATOR */}
             {activeInspectorTab === 'sequence' && (
               <div className="space-y-4">
-                <div className="p-3 bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-600 flex items-center justify-between">
+                <div className="p-3 bg-zinc-100/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
                   <span>AUTONOMOUS SEQUENCE GENERATOR</span>
-                  <span className="font-bold text-zinc-950">4 TOUCHPOINTS READY</span>
+                  <span className="font-bold text-zinc-950 dark:text-zinc-50">4 TOUCHPOINTS READY</span>
                 </div>
 
                 {sequenceTouches.map((touch, idx) => (
-                  <div key={idx} className="border border-zinc-200 bg-white">
-                    <div className="p-3 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between">
+                  <div key={idx} className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-black bg-zinc-950 text-white px-1.5 py-0.5">
+                        <span className="font-mono text-xs font-black bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 px-1.5 py-0.5">
                           {touch.step}
                         </span>
-                        <span className="font-mono text-xs text-zinc-500">{touch.day}</span>
-                        <span className="font-sans font-semibold text-xs text-zinc-900">• {touch.title}</span>
+                        <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{touch.day}</span>
+                        <span className="font-sans font-semibold text-xs text-zinc-900 dark:text-zinc-100">• {touch.title}</span>
                       </div>
-                      <span className="text-[10px] font-mono border border-zinc-300 px-2 py-0.5 uppercase bg-white">
+                      <span className="text-[10px] font-mono border border-zinc-300 dark:border-zinc-700 px-2 py-0.5 uppercase bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">
                         {touch.channel}
                       </span>
                     </div>
 
                     <div className="p-3 space-y-2">
-                      <div className="text-[11px] font-mono text-zinc-600 bg-zinc-50 p-2 border border-zinc-100">
-                        <span className="text-zinc-400">Subject: </span>{touch.subject}
+                      <div className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 border border-zinc-100 dark:border-zinc-800">
+                        <span className="text-zinc-400 dark:text-zinc-500">Subject: </span>{touch.subject}
                       </div>
 
                       <textarea
                         readOnly
                         rows={8}
                         value={touch.body}
-                        className="w-full p-2.5 text-xs font-mono bg-white border border-zinc-200 focus:outline-none resize-none leading-relaxed text-zinc-800"
+                        className="w-full p-2.5 text-xs font-mono bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none resize-none leading-relaxed text-zinc-800 dark:text-zinc-200"
                       />
 
                       <div className="flex items-center justify-between pt-1">
-                        <span className="text-[10px] font-mono text-zinc-500">
+                        <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
                           Injects live {formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo calculation
                         </span>
 
                         <button
                           onClick={() => copySequenceTouch(touch.body, idx)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono font-bold bg-zinc-950 hover:bg-zinc-800 text-white transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors"
                         >
                           {copiedTouchIndex === idx ? (
                             <>
@@ -732,60 +770,60 @@ Billy Benjamin`
             {activeInspectorTab === 'sow' && (
               <div className="space-y-6 text-xs font-mono">
                 
-                <div className="p-4 bg-zinc-50 border border-zinc-200 space-y-3">
-                  <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold">
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 space-y-3">
+                  <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-bold">
                     Custom Retainer & SLA Variables
                   </h4>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] text-zinc-500 block mb-1">Fixed Retainer Fee (USD)</label>
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 block mb-1">Fixed Retainer Fee (USD)</label>
                       <input
                         type="number"
                         step="500"
                         value={editFee}
                         onChange={(e) => setEditFee(e.target.value)}
-                        className="w-full px-3 py-2 border border-zinc-300 bg-white text-sm font-bold"
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 text-sm font-bold"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-zinc-500 block mb-1">Turnaround Days (SLA)</label>
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 block mb-1">Turnaround Days (SLA)</label>
                       <input
                         type="number"
                         step="1"
                         value={editDays}
                         onChange={(e) => setEditDays(e.target.value)}
-                        className="w-full px-3 py-2 border border-zinc-300 bg-white text-sm font-bold"
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 text-sm font-bold"
                       />
                     </div>
                   </div>
 
                   <button
                     onClick={saveMetrics}
-                    className="w-full py-2 bg-zinc-950 text-white font-bold text-xs uppercase tracking-wider hover:bg-zinc-800 transition-colors"
+                    className="w-full py-2 bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 font-bold text-xs uppercase tracking-wider transition-colors"
                   >
                     Save & Update SOW Parameters
                   </button>
                 </div>
 
                 {/* Live Payback & ROI Summary */}
-                <div className="p-4 border border-zinc-200 bg-white space-y-2">
-                  <span className="text-[10px] uppercase text-zinc-500 block">SOW Commercial Telemetry</span>
-                  <div className="flex justify-between py-1 border-b border-zinc-100">
-                    <span className="text-zinc-600">Fixed Architecture Investment:</span>
-                    <span className="font-bold text-zinc-950">{formatCurrency(selectedBrand.metrics.implementationFeeUSD)}</span>
+                <div className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-2">
+                  <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 block">SOW Commercial Telemetry</span>
+                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
+                    <span className="text-zinc-600 dark:text-zinc-400">Fixed Architecture Investment:</span>
+                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatCurrency(selectedBrand.metrics.implementationFeeUSD)}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-zinc-100">
-                    <span className="text-zinc-600">Projected Monthly GMV Lift:</span>
-                    <span className="font-bold text-zinc-950">{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo</span>
+                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
+                    <span className="text-zinc-600 dark:text-zinc-400">Projected Monthly GMV Lift:</span>
+                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-zinc-100">
-                    <span className="text-zinc-600">Payback Timeline Window:</span>
-                    <span className="font-bold text-zinc-950">{selectedCalc.retainerPaybackDays} Business Days</span>
+                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
+                    <span className="text-zinc-600 dark:text-zinc-400">Payback Timeline Window:</span>
+                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{selectedCalc.retainerPaybackDays} Business Days</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-zinc-600">First-Year Net ROI Multiple:</span>
-                    <span className="font-bold text-zinc-950">
+                    <span className="text-zinc-600 dark:text-zinc-400">First-Year Net ROI Multiple:</span>
+                    <span className="font-bold text-zinc-950 dark:text-zinc-50">
                       {(selectedCalc.annualRevenueRecovered / selectedBrand.metrics.implementationFeeUSD).toFixed(1)}x Multiple
                     </span>
                   </div>
@@ -793,8 +831,8 @@ Billy Benjamin`
 
                 <div className="pt-2">
                   <Link
-                    to={`/proposal/${selectedBrand.slug}`}
-                    className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 border border-zinc-300 text-zinc-950 font-bold flex items-center justify-center gap-2 transition-colors"
+                    to={`/proposal/${selectedBrand.slug}${themeQuery}`}
+                    className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-950 dark:text-zinc-50 font-bold flex items-center justify-center gap-2 transition-colors"
                   >
                     <span>View Print-Ready Commercial Proposal</span>
                     <ArrowRight size={14} strokeWidth={1.5} />
@@ -812,8 +850,8 @@ Billy Benjamin`
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-zinc-950 text-white text-xs font-mono px-4 py-2.5 shadow-xl border border-zinc-800 flex items-center gap-2">
-          <Check size={14} className="text-emerald-400" />
+        <div className="fixed bottom-6 right-6 z-50 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 text-xs font-mono px-4 py-2.5 shadow-xl border border-zinc-800 dark:border-zinc-300 flex items-center gap-2">
+          <Check size={14} className="text-emerald-400 dark:text-emerald-600" />
           <span>{toastMessage}</span>
         </div>
       )}
