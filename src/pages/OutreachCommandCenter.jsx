@@ -1467,12 +1467,12 @@ Billy Benjamin`
                 </div>
 
                 {/* Executive Primary Leak Box */}
-                <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-800">
-                  <div className="flex items-center gap-2 text-zinc-400 font-mono text-[10px] uppercase mb-1">
+                <div className="p-4 bg-white dark:bg-[#121214] text-zinc-950 dark:text-zinc-50 border border-zinc-200/90 dark:border-zinc-800/90 shadow-2xs">
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-mono text-[10px] uppercase font-bold mb-1">
                     <ShieldAlert size={14} strokeWidth={1.5} />
                     <span>Primary Architectural Friction Headline</span>
                   </div>
-                  <p className="text-[13.5px] font-sans font-medium leading-relaxed">
+                  <p className="text-[13.5px] font-sans font-medium text-zinc-900 dark:text-zinc-100 leading-relaxed">
                     "{selectedBrand.forensicAudit.primaryFrictionHeadline}"
                   </p>
                 </div>

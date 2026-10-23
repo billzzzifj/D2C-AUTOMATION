@@ -253,12 +253,12 @@ ${brand.name}`)}`;
                 <span className="text-[10px] text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mt-1">Based on {formatNumber(brand.metrics.monthlyTraffic)} visits/mo</span>
               </div>
 
-              <div className="p-4 border border-zinc-950 dark:border-zinc-700 bg-zinc-950 dark:bg-zinc-900 text-white print:bg-zinc-100 print:text-black print:border-zinc-400">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-400 print:text-zinc-600 block mb-1">Retainer Payback Window</span>
-                <span className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-white print:text-black block mt-1">
+              <div className="p-4 border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#18181B] text-zinc-950 dark:text-zinc-50 print:bg-zinc-100 print:text-black print:border-zinc-400 shadow-2xs">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mb-1">Retainer Payback Window</span>
+                <span className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-zinc-950 dark:text-zinc-50 print:text-black block mt-1">
                   {calc.retainerPaybackDays} Business Days
                 </span>
-                <span className="text-[10px] text-emerald-400 print:text-emerald-700 block mt-1 font-bold">
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 print:text-emerald-700 block mt-1 font-bold">
                   {(calc.annualRevenueRecovered / brand.metrics.implementationFeeUSD).toFixed(1)}x 12-Month Net Multiple
                 </span>
               </div>

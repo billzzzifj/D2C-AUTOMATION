@@ -262,18 +262,18 @@ export default function ClientForensicAuditView() {
             </div>
 
             {/* Takeaway 03: Estimated Monthly Lift & Payback */}
-            <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-700 flex flex-col justify-between space-y-2">
+            <div className="p-4 bg-white dark:bg-[#18181B] border border-zinc-200/90 dark:border-zinc-800/90 flex flex-col justify-between space-y-2 shadow-2xs">
               <div>
-                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mb-1">
+                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mb-1">
                   <span className="uppercase tracking-wider font-semibold">03. Monthly Lift & Payback</span>
-                  <span className="text-emerald-400 font-bold uppercase text-[10px]">Net-New GMV</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase text-[10px]">Net-New GMV</span>
                 </div>
-                <div className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-white">
+                <div className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-zinc-950 dark:text-zinc-50">
                   +{formatCurrency(calc.monthlyRevenueRecovered)}
-                  <span className="text-xs font-normal text-zinc-400 ml-1 font-mono">/ mo</span>
+                  <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400 ml-1 font-mono">/ mo</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-[11px] font-mono pt-1.5 border-t border-zinc-800 text-emerald-400 font-medium">
+              <div className="flex items-center justify-between text-[11px] font-mono pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70 text-emerald-600 dark:text-emerald-400 font-medium">
                 <span>Payback Window:</span>
                 <span className="font-bold">{calc.retainerPaybackDays} Business Days</span>
               </div>
@@ -297,17 +297,23 @@ export default function ClientForensicAuditView() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Column 1: Validated Brand Equity */}
-            <div className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] p-6 space-y-4 transition-colors">
-              <div className="flex items-center gap-2 pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
-                <ShieldCheck size={18} strokeWidth={1.5} className="text-zinc-950 dark:text-zinc-50" />
-                <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-950 dark:text-zinc-50">
-                  Validated Brand Equity & Moats (What Is Working)
-                </h3>
+            <div className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] p-6 space-y-4 transition-colors shadow-2xs">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <ShieldCheck size={18} strokeWidth={1.5} className="text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-950 dark:text-zinc-50">
+                    Validated Brand Equity & Moats
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                  Moat
+                </span>
               </div>
 
               <ul className="space-y-3 text-xs">
                 {brand.forensicAudit.brandStrengths.map((str, idx) => (
-                  <li key={idx} className="p-3 bg-zinc-50/70 dark:bg-[#18181B] border border-zinc-100 dark:border-zinc-800/80 flex items-start gap-2.5">
+                  <li key={idx} className="p-3 bg-zinc-50/70 dark:bg-[#18181B] border border-zinc-200/70 dark:border-zinc-800/80 flex items-start gap-2.5">
                     <span className="font-mono font-bold text-zinc-950 dark:text-zinc-50">0{idx + 1}.</span>
                     <span className="text-[13.5px] text-zinc-700 dark:text-zinc-300 leading-relaxed font-sans">{str}</span>
                   </li>
@@ -316,24 +322,30 @@ export default function ClientForensicAuditView() {
             </div>
 
             {/* Column 2: Identified Technical & UX Revenue Leaks */}
-            <div className="border border-zinc-950 dark:border-zinc-800 bg-zinc-950 dark:bg-zinc-900 text-white p-6 space-y-4">
-              <div className="flex items-center gap-2 pb-3 border-b border-zinc-800 dark:border-zinc-700">
-                <AlertOctagon size={18} strokeWidth={1.5} className="text-white" />
-                <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-white">
-                  Identified Structural UX Revenue Leaks
-                </h3>
+            <div className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] p-6 space-y-4 transition-colors shadow-2xs">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <AlertOctagon size={18} strokeWidth={1.5} className="text-amber-600 dark:text-amber-400" />
+                  <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-950 dark:text-zinc-50">
+                    Identified Structural UX Revenue Leaks
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+                  Active Friction
+                </span>
               </div>
 
-              <div className="p-3 bg-zinc-900 dark:bg-zinc-950 border border-zinc-800 dark:border-zinc-700 text-xs mb-3">
-                <span className="text-[10px] font-mono uppercase text-zinc-400 dark:text-zinc-500 block mb-0.5">Primary Friction Mode</span>
-                <p className="text-[13.5px] font-sans font-medium text-white leading-relaxed">{brand.forensicAudit.primaryFrictionHeadline}</p>
+              <div className="p-3 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/50 text-xs mb-3">
+                <span className="text-[10px] font-mono uppercase text-amber-800 dark:text-amber-400 font-bold block mb-0.5">Primary Friction Mode</span>
+                <p className="text-[13.5px] font-sans font-medium text-zinc-900 dark:text-zinc-100 leading-relaxed">{brand.forensicAudit.primaryFrictionHeadline}</p>
               </div>
 
               <ul className="space-y-2 text-xs">
                 {brand.forensicAudit.technicalBottlenecks.map((bot, idx) => (
-                  <li key={idx} className="p-2.5 bg-zinc-900/60 dark:bg-zinc-950/60 border border-zinc-800/80 dark:border-zinc-800 flex items-start gap-2.5 text-zinc-300">
-                    <span className="font-mono font-bold text-zinc-400 dark:text-zinc-500">0{idx + 1}.</span>
-                    <span className="text-[13.5px] leading-relaxed font-sans text-zinc-300">{bot}</span>
+                  <li key={idx} className="p-2.5 bg-zinc-50/70 dark:bg-[#18181B] border border-zinc-200/70 dark:border-zinc-800/80 flex items-start gap-2.5 text-zinc-800 dark:text-zinc-200">
+                    <span className="font-mono font-bold text-zinc-500 dark:text-zinc-400">0{idx + 1}.</span>
+                    <span className="text-[13.5px] leading-relaxed font-sans text-zinc-700 dark:text-zinc-300">{bot}</span>
                   </li>
                 ))}
               </ul>
@@ -470,26 +482,26 @@ export default function ClientForensicAuditView() {
                 </span>
               </div>
 
-              <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-700">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-400 block mb-1">
+              <div className="p-4 bg-white dark:bg-[#18181B] border border-zinc-200/90 dark:border-zinc-800/90 text-zinc-950 dark:text-zinc-50 shadow-2xs">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
                   Monthly Recovered Revenue
                 </span>
-                <span className="text-2xl font-semibold font-mono text-white tabular-nums block tracking-tight">
+                <span className="text-2xl font-semibold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums block tracking-tight">
                   +{formatCurrency(calc.monthlyRevenueRecovered)}
                 </span>
-                <span className="text-[10px] font-mono text-zinc-400 block mt-1">
+                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 block mt-1">
                   Net-New Monthly GMV Lift
                 </span>
               </div>
 
-              <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-700">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-400 block mb-1">
+              <div className="p-4 bg-white dark:bg-[#18181B] border border-zinc-200/90 dark:border-zinc-800/90 text-zinc-950 dark:text-zinc-50 shadow-2xs">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
                   Annualized Revenue Impact
                 </span>
-                <span className="text-2xl font-semibold font-mono text-white tabular-nums block tracking-tight">
+                <span className="text-2xl font-semibold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums block tracking-tight">
                   +{formatCurrency(calc.annualRevenueRecovered, true)}
                 </span>
-                <span className="text-[10px] font-mono text-emerald-400 block mt-1 font-bold">
+                <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 block mt-1 font-bold">
                   Retainer Payback: {calc.retainerPaybackDays} Business Days
                 </span>
               </div>
@@ -682,7 +694,7 @@ export default function ClientForensicAuditView() {
       </main>
 
       {/* Sticky Conversion Footer Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-950 dark:bg-black text-white border-t border-zinc-800 dark:border-zinc-800 p-3 sm:p-4 shadow-2xl">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-900 dark:bg-zinc-950 text-white border-t border-zinc-800 p-3 sm:p-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           
           <div className="text-left font-mono">
@@ -697,7 +709,7 @@ export default function ClientForensicAuditView() {
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <Link
               to={`/proposal/${brand.slug}`}
-              className="w-full sm:w-auto px-6 py-2.5 bg-white hover:bg-zinc-100 dark:bg-zinc-100 dark:hover:bg-white text-zinc-950 font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
+              className="w-full sm:w-auto px-6 py-2.5 bg-white text-zinc-950 hover:bg-zinc-100 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
             >
               <span>Approve Architecture & View SOW</span>
               <ArrowRight size={14} strokeWidth={1.5} />
