@@ -74,10 +74,10 @@ ${brand.decisionMakerTitles.split(',')[0]}
 ${brand.name}`)}`;
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-950 dark:text-zinc-50 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-50 dark:selection:text-zinc-950 pb-20 transition-colors duration-150">
+    <div className="min-h-screen bg-[#F7F7F5] dark:bg-[#0B0B0C] text-zinc-950 dark:text-zinc-50 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-50 dark:selection:text-zinc-950 pb-20 transition-colors duration-150">
       
       {/* Top Institutional Bar (Hidden in Print) */}
-      <header className="sticky top-0 z-40 w-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 transition-colors no-print">
+      <header className="sticky top-0 z-40 w-full bg-[#F7F7F5]/95 dark:bg-[#0B0B0C]/95 backdrop-blur-sm border-b border-zinc-200/90 dark:border-zinc-800/90 transition-colors no-print">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           
           <div className="flex items-center gap-4">
@@ -85,7 +85,7 @@ ${brand.name}`)}`;
               <ArrowLeft size={16} strokeWidth={1.5} />
             </Link>
             <BrandLogo />
-            <div className="hidden sm:flex items-center pl-4 border-l border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 dark:text-zinc-400">
+            <div className="hidden sm:flex items-center pl-4 border-l border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono text-zinc-500 dark:text-zinc-400">
               <span>COMMERCIAL SOW // LEGAL RECORD</span>
             </div>
           </div>
@@ -95,14 +95,14 @@ ${brand.name}`)}`;
 
             <Link
               to={`/demo/${brand.slug}`}
-              className="text-xs font-mono text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-50 px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors"
+              className="text-xs font-mono text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-50 px-3 py-1.5 border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] transition-colors"
             >
               Interactive Simulator
             </Link>
 
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#121214] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
             >
               <Printer size={14} strokeWidth={1.5} />
               <span>Print / Export PDF Dossier</span>
@@ -123,7 +123,7 @@ ${brand.name}`)}`;
       {/* Contract Sheet Document */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 w-full">
         
-        <div className="border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-8 sm:p-14 space-y-10 shadow-sm transition-colors print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+        <div className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] p-8 sm:p-14 space-y-10 shadow-2xs transition-colors print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
           
           {/* Header Metadata */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pb-8 border-b-2 border-zinc-950 dark:border-zinc-700 print:border-black">
@@ -152,7 +152,7 @@ ${brand.name}`)}`;
             <h2 className="text-xs font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 print:text-zinc-600 font-bold">
               1. Engagement Objective & Scope
             </h2>
-            <p className="text-sm font-sans text-zinc-800 dark:text-zinc-200 print:text-black leading-relaxed">
+            <p className="text-[13.5px] font-sans text-zinc-700 dark:text-zinc-300 print:text-black leading-relaxed">
               This Statement of Work ("SOW") authorizes Billy Benjamin Consulting to engineer, deploy, and benchmark 3 bespoke conversion and revenue-architecture systems across {brand.name}'s digital storefront ({brand.website}). All interventions are designed to eradicate existing architectural bottlenecks ("{brand.forensicAudit.primaryFrictionHeadline}") and compound monthly throughput across CVR, AOV, and Repeat LTV{brand.webStatus === "IG DM / Linktree Only (No Website)" ? ', transitioning the brand into a fully automated, high-converting digital flagship' : ''}.
             </p>
           </div>
@@ -163,17 +163,17 @@ ${brand.name}`)}`;
               2. Technical Implementation Roadmap & Weekly Milestones
             </h2>
 
-            <div className="border border-zinc-200 dark:border-zinc-800 print:border-zinc-300 overflow-x-auto">
+            <div className="border border-zinc-200/90 dark:border-zinc-800/90 print:border-zinc-300 overflow-x-auto">
               <table className="w-full text-left text-xs font-sans border-collapse">
                 <thead>
-                  <tr className="bg-zinc-50 dark:bg-zinc-900 print:bg-zinc-100 border-b border-zinc-200 dark:border-zinc-800 print:border-zinc-300 font-mono text-[10px] text-zinc-600 dark:text-zinc-400 print:text-zinc-700 uppercase tracking-wider">
+                  <tr className="bg-zinc-50/70 dark:bg-[#18181B] print:bg-zinc-100 border-b border-zinc-200/90 dark:border-zinc-800/90 print:border-zinc-300 font-mono text-[10px] text-zinc-600 dark:text-zinc-300 print:text-zinc-700 uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-bold w-24">Phase</th>
                     <th className="py-2.5 px-4 font-bold">Milestone Focus</th>
                     <th className="py-2.5 px-4 font-bold">Technical Deliverables & Architecture</th>
                     <th className="py-2.5 px-4 font-bold w-28">Sign-off SLA</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 print:divide-zinc-300 text-zinc-800 dark:text-zinc-200 print:text-black">
+                <tbody className="divide-y divide-zinc-200/90 dark:divide-zinc-800/80 print:divide-zinc-300 text-zinc-800 dark:text-zinc-200 print:text-black">
                   {/* Week 1 */}
                   <tr>
                     <td className="py-3 px-4 font-mono font-bold bg-zinc-50/50 dark:bg-zinc-900/50 print:bg-white text-zinc-950 dark:text-zinc-50 print:text-black">WEEK 01</td>
@@ -228,28 +228,28 @@ ${brand.name}`)}`;
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
               
-              <div className="p-4 border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 print:bg-white print:border-zinc-300">
-                <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block">Fixed Retainer Fee</span>
-                <span className="text-2xl font-black text-zinc-950 dark:text-zinc-50 print:text-black block mt-1">
+              <div className="p-4 border border-zinc-200/90 dark:border-zinc-800/90 bg-zinc-50/70 dark:bg-[#18181B] print:bg-white print:border-zinc-300">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mb-1">Fixed Retainer Fee</span>
+                <span className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-zinc-900 dark:text-zinc-50 print:text-black block mt-1">
                   {formatCurrency(brand.metrics.implementationFeeUSD)}
                 </span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mt-0.5">50% at Kickoff / 50% at Launch</span>
+                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mt-1">50% at Kickoff / 50% at Launch</span>
               </div>
 
-              <div className="p-4 border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 print:bg-white print:border-zinc-300">
-                <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block">Projected Monthly GMV Lift</span>
-                <span className="text-2xl font-black text-zinc-950 dark:text-zinc-50 print:text-black block mt-1">
+              <div className="p-4 border border-zinc-200/90 dark:border-zinc-800/90 bg-zinc-50/70 dark:bg-[#18181B] print:bg-white print:border-zinc-300">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mb-1">Projected Monthly GMV Lift</span>
+                <span className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-zinc-900 dark:text-zinc-50 print:text-black block mt-1">
                   +{formatCurrency(calc.monthlyRevenueRecovered)}
                 </span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mt-0.5">Based on {formatNumber(brand.metrics.monthlyTraffic)} visits/mo</span>
+                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 print:text-zinc-600 block mt-1">Based on {formatNumber(brand.metrics.monthlyTraffic)} visits/mo</span>
               </div>
 
               <div className="p-4 border border-zinc-950 dark:border-zinc-700 bg-zinc-950 dark:bg-zinc-900 text-white print:bg-zinc-100 print:text-black print:border-zinc-400">
-                <span className="text-[10px] uppercase text-zinc-400 print:text-zinc-600 block">Retainer Payback Window</span>
-                <span className="text-2xl font-black text-white print:text-black block mt-1">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-400 print:text-zinc-600 block mb-1">Retainer Payback Window</span>
+                <span className="text-2xl font-semibold font-mono tabular-nums tracking-tight text-white print:text-black block mt-1">
                   {calc.retainerPaybackDays} Business Days
                 </span>
-                <span className="text-[10px] text-emerald-400 print:text-emerald-700 block mt-0.5 font-bold">
+                <span className="text-[10px] text-emerald-400 print:text-emerald-700 block mt-1 font-bold">
                   {(calc.annualRevenueRecovered / brand.metrics.implementationFeeUSD).toFixed(1)}x 12-Month Net Multiple
                 </span>
               </div>

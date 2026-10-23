@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    --canvas: #FAFAFA;
+    --canvas: #F7F7F5;
     --surface: #FFFFFF;
     --ink: #09090B;
     --hairline: #E4E4E7;
   }
 
   .dark {
-    --canvas: #000000;
-    --surface: #09090B;
+    --canvas: #0B0B0C;
+    --surface: #121214;
     --ink: #FAFAFA;
     --hairline: #27272A;
   }

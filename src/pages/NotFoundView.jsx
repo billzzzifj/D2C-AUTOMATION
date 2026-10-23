@@ -7,8 +7,8 @@ import { ArrowLeft, Search } from 'lucide-react';
 
 export default function NotFoundView() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-950 dark:text-zinc-50 flex flex-col font-mono selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-50 dark:selection:text-zinc-950 transition-colors duration-150">
-      <header className="w-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 flex items-center justify-between">
+    <div className="min-h-screen bg-[#F7F7F5] dark:bg-[#0B0B0C] text-zinc-950 dark:text-zinc-50 flex flex-col font-mono selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-50 dark:selection:text-zinc-950 transition-colors duration-150">
+      <header className="w-full bg-[#F7F7F5]/95 dark:bg-[#0B0B0C]/95 backdrop-blur-sm border-b border-zinc-200/90 dark:border-zinc-800/90 py-4 px-6 flex items-center justify-between">
         <Link to="/">
           <BrandLogo showBadge={true} />
         </Link>
@@ -39,7 +39,7 @@ export default function NotFoundView() {
             <Link
               key={brand.id}
               to={`/demo/${brand.slug}`}
-              className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-950 dark:hover:border-zinc-50 transition-colors block text-xs"
+              className="p-3 bg-white dark:bg-[#121214] border border-zinc-200/90 dark:border-zinc-800/90 hover:border-zinc-950 dark:hover:border-zinc-50 transition-colors block text-xs"
             >
               <span className="font-sans font-bold text-zinc-950 dark:text-zinc-50 block truncate">{brand.name}</span>
               <span className="text-[10px] text-zinc-500 dark:text-zinc-400 block">{brand.sector}</span>

@@ -20,6 +20,7 @@ import {
   DollarSign, 
   ArrowUpRight,
   ChevronRight,
+  ChevronLeft,
   Eye,
   RefreshCw,
   Send,
@@ -60,7 +61,41 @@ export default function OutreachCommandCenter() {
 
   const [activeInspectorTab, setActiveInspectorTab] = useState('audit'); // 'audit' | 'sequence' | 'sow'
   const [copiedTouchIndex, setCopiedTouchIndex] = useState(null);
+  const [copiedLinkType, setCopiedLinkType] = useState(null); // 'demo' | 'proposal'
   const [lockThemeToLink, setLockThemeToLink] = useState(true);
+
+  // Stepper & keyboard navigation through filtered brands
+  const currentBrandIndex = brands.findIndex(b => b.id === selectedBrand.id);
+  const hasPrevBrand = currentBrandIndex > 0;
+  const hasNextBrand = currentBrandIndex >= 0 && currentBrandIndex < brands.length - 1;
+
+  const selectPrevBrand = React.useCallback(() => {
+    if (hasPrevBrand) {
+      setSelectedBrandId(brands[currentBrandIndex - 1].id);
+    }
+  }, [hasPrevBrand, brands, currentBrandIndex, setSelectedBrandId]);
+
+  const selectNextBrand = React.useCallback(() => {
+    if (hasNextBrand) {
+      setSelectedBrandId(brands[currentBrandIndex + 1].id);
+    }
+  }, [hasNextBrand, brands, currentBrandIndex, setSelectedBrandId]);
+
+  // Keyboard navigation: Esc to unfocus, ArrowUp/k for Prev Brand, ArrowDown/j for Next Brand
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) return;
+      if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        selectPrevBrand();
+      } else if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        selectNextBrand();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectPrevBrand, selectNextBrand]);
 
   // Editable contacts state bound to selected brand
   const [editEmail, setEditEmail] = useState(selectedBrand.email);
@@ -107,6 +142,13 @@ export default function OutreachCommandCenter() {
   const themeQuery = lockThemeToLink ? `?theme=${theme}` : '';
   const demoLink = `${window.location.origin}${window.location.pathname}#/demo/${selectedBrand.slug}${themeQuery}`;
   const proposalLink = `${window.location.origin}${window.location.pathname}#/proposal/${selectedBrand.slug}${themeQuery}`;
+
+  const copyLinkWithFeedback = (url, type) => {
+    navigator.clipboard.writeText(url);
+    setCopiedLinkType(type);
+    showToast(`Copied ${type === 'demo' ? 'Client Audit' : 'Proposal'} link to clipboard`);
+    setTimeout(() => setCopiedLinkType(null), 2000);
+  };
 
   // 4-Stage Automated Sequence Scripts (Dynamic zero-web / drop-site vs. scaled micro-store)
   const isZeroWebOrDrop = selectedBrand.webStatus === "IG DM / Linktree Only (No Website)" || selectedBrand.webStatus === "Password-Locked Drop Site";
@@ -262,16 +304,16 @@ Billy Benjamin`
   const sectors = ["All", ...Array.from(new Set(allBrands.map(b => b.sector)))];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-950 dark:text-zinc-50 transition-colors duration-150 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-950">
+    <div className="min-h-screen bg-[#F7F7F5] dark:bg-[#0B0B0C] text-zinc-950 dark:text-zinc-50 transition-colors duration-150 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-950">
       
       {/* Top Institutional Bar */}
-      <header className="sticky top-0 z-40 w-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+      <header className="sticky top-0 z-40 w-full bg-[#F7F7F5]/95 dark:bg-[#0B0B0C]/95 backdrop-blur-sm border-b border-zinc-200/90 dark:border-zinc-800/90 transition-colors">
         <div className="w-full px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
           
           {/* Logo & Platform Identifier */}
           <div className="flex items-center gap-4">
             <BrandLogo showBadge={true} />
-            <div className="hidden xl:flex items-center pl-4 border-l border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 dark:text-zinc-400">
+            <div className="hidden xl:flex items-center pl-4 border-l border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono text-zinc-500 dark:text-zinc-400">
               <span>GLOBAL D2C REVENUE INTELLIGENCE OS // 50 TARGETS</span>
             </div>
           </div>
@@ -283,7 +325,7 @@ Billy Benjamin`
 
             <button
               onClick={resetAllToDefaults}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
               title="Reset all 50 brands back to default data"
             >
               <RefreshCw size={14} strokeWidth={1.5} />
@@ -301,42 +343,42 @@ Billy Benjamin`
         </div>
 
         {/* Top Financial Telemetry Strip (Dieter Rams Architectural Matrix) */}
-        <div className="w-full bg-zinc-100/80 dark:bg-zinc-900/80 border-t border-b border-zinc-200 dark:border-zinc-800 grid grid-cols-2 md:grid-cols-4 divide-x divide-zinc-200 dark:divide-zinc-800 text-left transition-colors">
+        <div className="w-full bg-white/80 dark:bg-[#121214]/80 border-t border-b border-zinc-200/90 dark:border-zinc-800/90 grid grid-cols-2 md:grid-cols-4 divide-x divide-zinc-200/90 dark:divide-zinc-800/90 text-left transition-colors">
           
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
               Total Addressable Leak (50 Targets)
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
+            <span className="text-xl lg:text-2xl font-semibold font-mono text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
               {formatCurrency(aggregateMetrics.totalAddressableAnnualLeak, true)}
               <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400 ml-1">/ yr</span>
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
               Active Pipeline Retainer Value
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
+            <span className="text-xl lg:text-2xl font-semibold font-mono text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
               {formatCurrency(aggregateMetrics.activePipelineRetainerValue)}
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
               Brands In Outbound Sequence
             </span>
-            <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
+            <span className="text-xl lg:text-2xl font-semibold font-mono text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
               {aggregateMetrics.brandsInSequenceCount} <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">/ {aggregateMetrics.totalBrandsCount || 50}</span>
             </span>
           </div>
 
           <div className="p-3.5 lg:px-6 flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
                 Targeted ARR Universe
               </span>
-              <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
+              <span className="text-xl lg:text-2xl font-semibold font-mono text-zinc-900 dark:text-zinc-100 tabular-nums tracking-tight">
                 $1M – $100M+
               </span>
             </div>
@@ -350,10 +392,10 @@ Billy Benjamin`
       <div className="flex-1 flex flex-col lg:flex-row w-full overflow-hidden">
         
         {/* Left Side: Table / Kanban Matrix */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 transition-colors">
+        <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200/90 dark:border-zinc-800/90 bg-[#F7F7F5] dark:bg-[#0B0B0C] transition-colors">
           
           {/* Controls Bar: Filters & View Modes */}
-          <div className="p-3 lg:px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col gap-3 transition-colors">
+          <div className="p-3 lg:px-6 border-b border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] flex flex-col gap-3 transition-colors">
             
             {/* Row 1: Discovery Tier Filter Pills + View Switcher */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -440,18 +482,18 @@ Billy Benjamin`
             <div className="flex-1 overflow-x-auto overflow-y-auto max-h-[calc(100vh-190px)]">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 font-mono text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider sticky top-0 z-10 transition-colors">
-                    <th className="py-2.5 px-4 font-medium">Brand & Storefront Status</th>
-                    <th className="py-2.5 px-3 font-medium">Sector</th>
-                    <th className="py-2.5 px-3 font-medium text-right">Traffic/Mo</th>
-                    <th className="py-2.5 px-3 font-medium text-right">CVR</th>
-                    <th className="py-2.5 px-3 font-medium text-right">AOV</th>
-                    <th className="py-2.5 px-3 font-medium text-right">Est. Annual Leak</th>
-                    <th className="py-2.5 px-3 font-medium text-right">Retainer</th>
-                    <th className="py-2.5 px-4 font-medium">Status</th>
+                  <tr className="border-b border-zinc-300 dark:border-zinc-800 bg-[#F7F7F5]/95 dark:bg-[#0B0B0C]/95 backdrop-blur-sm font-mono text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider sticky top-0 z-10 transition-colors">
+                    <th className="py-3 px-4 font-medium">Brand & Storefront Status</th>
+                    <th className="py-3 px-3 font-medium">Sector</th>
+                    <th className="py-3 px-3 font-medium text-right">Traffic/Mo</th>
+                    <th className="py-3 px-3 font-medium text-right">CVR</th>
+                    <th className="py-3 px-3 font-medium text-right">AOV</th>
+                    <th className="py-3 px-3 font-medium text-right">Est. Annual Leak</th>
+                    <th className="py-3 px-3 font-medium text-right">Retainer</th>
+                    <th className="py-3 px-4 font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/80 font-mono">
+                <tbody className="divide-y divide-zinc-200/90 dark:divide-zinc-800/80 font-mono">
                   {brands.map(brand => {
                     const isSelected = brand.id === selectedBrandId;
                     const calc = calculateRevenueImpact({
@@ -468,13 +510,13 @@ Billy Benjamin`
                       <tr
                         key={brand.id}
                         onClick={() => setSelectedBrandId(brand.id)}
-                        className={`cursor-pointer transition-colors ${
+                        className={`cursor-pointer transition-colors duration-100 ${
                           isSelected 
-                            ? 'bg-zinc-100 dark:bg-zinc-900 font-medium' 
-                            : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
+                            ? 'bg-zinc-100 dark:bg-zinc-900/90 border-l-2 border-l-zinc-900 dark:border-l-zinc-100 font-medium' 
+                            : 'hover:bg-zinc-100/80 dark:hover:bg-zinc-900/60 border-l-2 border-l-transparent'
                         }`}
                       >
-                        <td className="py-3 px-4">
+                        <td className="py-3.5 px-4">
                           <div className="font-sans font-bold text-zinc-950 dark:text-zinc-50 text-sm leading-tight flex items-center gap-1.5">
                             <span>{brand.name}</span>
                             {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 dark:bg-zinc-100" />}
@@ -498,25 +540,25 @@ Billy Benjamin`
                             )}
                           </div>
                         </td>
-                        <td className="py-3 px-3 text-zinc-600 dark:text-zinc-300 font-sans">
+                        <td className="py-3.5 px-3 text-zinc-600 dark:text-zinc-300 font-sans">
                           {brand.sector}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
+                        <td className="py-3.5 px-3 text-right text-zinc-900 dark:text-zinc-100 tabular-nums font-mono">
                           {formatNumber(brand.metrics.monthlyTraffic)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
+                        <td className="py-3.5 px-3 text-right text-zinc-900 dark:text-zinc-100 tabular-nums font-mono">
                           {formatPercent(brand.metrics.currentCVR)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-900 dark:text-zinc-200 tabular-nums font-mono">
+                        <td className="py-3.5 px-3 text-right text-zinc-900 dark:text-zinc-100 tabular-nums font-mono">
                           ${brand.metrics.currentAOV}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-950 dark:text-zinc-50 font-bold tabular-nums font-mono">
+                        <td className="py-3.5 px-3 text-right text-zinc-950 dark:text-zinc-50 font-bold tabular-nums font-mono">
                           {formatCurrency(calc.annualRevenueRecovered, true)}
                         </td>
-                        <td className="py-3 px-3 text-right text-zinc-600 dark:text-zinc-400 tabular-nums font-mono">
+                        <td className="py-3.5 px-3 text-right text-zinc-600 dark:text-zinc-400 tabular-nums font-mono">
                           {formatCurrency(brand.metrics.implementationFeeUSD)}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3.5 px-4">
                           <span className={`inline-block px-2 py-0.5 text-[10px] uppercase font-mono border ${
                             brand.status === 'Closed Retainer'
                               ? 'border-zinc-950 bg-black text-white dark:border-zinc-200 dark:bg-white dark:text-zinc-950 font-bold'
@@ -599,10 +641,52 @@ Billy Benjamin`
         </div>
 
         {/* Right Side: Split-Screen Forensic Inspector (680px Width) */}
-        <div className="w-full lg:w-[680px] bg-white dark:bg-zinc-950 flex flex-col shrink-0 overflow-y-auto max-h-[calc(100vh-140px)] border-l border-zinc-200 dark:border-zinc-800 transition-colors">
+        <div className="w-full lg:w-[680px] bg-white dark:bg-[#121214] flex flex-col shrink-0 overflow-y-auto max-h-[calc(100vh-140px)] border-l border-zinc-200/90 dark:border-zinc-800/90 transition-colors">
           
-          {/* Inspector Header */}
-          <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 transition-colors">
+          {/* Inspector Header with Stepper */}
+          <div className="p-5 border-b border-zinc-200/90 dark:border-zinc-800/90 bg-[#F7F7F5] dark:bg-[#0B0B0C] transition-colors">
+            
+            {/* Brand Stepper Bar */}
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200/80 dark:border-zinc-800/80 text-[11px] font-mono">
+              <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
+                <span className="px-1.5 py-0.5 bg-zinc-200/70 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 font-bold">
+                  {currentBrandIndex >= 0 ? currentBrandIndex + 1 : 1}
+                </span>
+                <span>OF {brands.length} TARGETS</span>
+                <span className="hidden sm:inline text-zinc-400 dark:text-zinc-500">• [↑ / ↓ to step]</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={selectPrevBrand}
+                  disabled={!hasPrevBrand}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-mono border transition-colors ${
+                    hasPrevBrand
+                      ? 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer'
+                      : 'border-zinc-200 dark:border-zinc-800/60 bg-transparent text-zinc-300 dark:text-zinc-700 cursor-not-allowed'
+                  }`}
+                  title="Previous Brand (ArrowUp or k)"
+                >
+                  <ChevronLeft size={13} strokeWidth={1.5} />
+                  <span>Prev Brand</span>
+                </button>
+
+                <button
+                  onClick={selectNextBrand}
+                  disabled={!hasNextBrand}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-mono border transition-colors ${
+                    hasNextBrand
+                      ? 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer'
+                      : 'border-zinc-200 dark:border-zinc-800/60 bg-transparent text-zinc-300 dark:text-zinc-700 cursor-not-allowed'
+                  }`}
+                  title="Next Brand (ArrowDown or j)"
+                >
+                  <span>Next Brand</span>
+                  <ChevronRight size={13} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
@@ -619,7 +703,7 @@ Billy Benjamin`
                     <ExternalLink size={14} strokeWidth={1.5} />
                   </a>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-mono text-zinc-600 dark:text-zinc-400 mt-1">
+                <div className="flex items-center gap-3 text-xs font-mono text-zinc-600 dark:text-zinc-300 mt-1">
                   <span>{selectedBrand.sector}</span>
                   <span>•</span>
                   <span>{selectedBrand.hqLocation}</span>
@@ -627,7 +711,7 @@ Billy Benjamin`
                   <span>Turnaround: {selectedBrand.metrics.turnaroundDays} Days</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <span className="text-[10px] font-mono px-2 py-0.5 border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
+                  <span className="text-[10px] font-mono px-2 py-0.5 border border-zinc-200/90 dark:border-zinc-800/90 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
                     {selectedBrand.discoveryTier || 'Tier 1: Scaled D2C'}
                   </span>
                   <span className={`text-[10px] font-mono px-2 py-0.5 border font-semibold ${
@@ -635,7 +719,7 @@ Billy Benjamin`
                       ? 'border-2 border-zinc-950 dark:border-zinc-100 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold'
                       : selectedBrand.webStatus === "Password-Locked Drop Site"
                       ? 'border border-zinc-500 dark:border-zinc-400 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-                      : 'border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400'
+                      : 'border border-zinc-200/90 dark:border-zinc-800/90 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400'
                   }`}>
                     {selectedBrand.webStatus || 'Unoptimized Micro-Store'}
                   </span>
@@ -657,29 +741,73 @@ Billy Benjamin`
               </div>
             </div>
 
-            {/* Quick 1-Click Action Row */}
-            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center gap-2">
+            {/* Quick 1-Click Action Row with Inline Feedback */}
+            <div className="mt-4 pt-3 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap items-center gap-2">
               <Link
                 to={`/demo/${selectedBrand.slug}${themeQuery}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50 transition-colors shadow-sm"
               >
                 <Eye size={14} strokeWidth={1.5} />
-                <span>Launch Client Audit (/#/demo/{selectedBrand.slug})</span>
+                <span>Launch Client Audit</span>
               </Link>
+
+              <button
+                onClick={() => copyLinkWithFeedback(demoLink, 'demo')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border transition-all ${
+                  copiedLinkType === 'demo'
+                    ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border-zinc-950 dark:border-zinc-100 font-bold'
+                    : 'bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200'
+                }`}
+                title="Copy client audit URL"
+              >
+                {copiedLinkType === 'demo' ? (
+                  <>
+                    <Check size={12} strokeWidth={2} />
+                    <span>Copied to Clipboard ✓</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={12} strokeWidth={1.5} />
+                    <span>Copy Audit Link</span>
+                  </>
+                )}
+              </button>
 
               <Link
                 to={`/proposal/${selectedBrand.slug}${themeQuery}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition-colors"
               >
                 <FileText size={14} strokeWidth={1.5} />
-                <span>SOW Proposal (/#/proposal/{selectedBrand.slug})</span>
+                <span>SOW Proposal</span>
               </Link>
+
+              <button
+                onClick={() => copyLinkWithFeedback(proposalLink, 'proposal')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border transition-all ${
+                  copiedLinkType === 'proposal'
+                    ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border-zinc-950 dark:border-zinc-100 font-bold'
+                    : 'bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200'
+                }`}
+                title="Copy proposal URL"
+              >
+                {copiedLinkType === 'proposal' ? (
+                  <>
+                    <Check size={12} strokeWidth={2} />
+                    <span>Copied to Clipboard ✓</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={12} strokeWidth={1.5} />
+                    <span>Copy SOW Link</span>
+                  </>
+                )}
+              </button>
 
               <a
                 href={selectedBrand.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
                 title={`Open Instagram: ${selectedBrand.instagram.handle}`}
               >
                 IG: {selectedBrand.instagram.handle}
@@ -689,7 +817,7 @@ Billy Benjamin`
                 href={selectedBrand.linkedinSearchUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
                 title="Search Decision Makers on LinkedIn"
               >
                 LinkedIn DM
@@ -697,8 +825,8 @@ Billy Benjamin`
             </div>
 
             {/* Outreach Link Theme Lock Checkbox */}
-            <div className="mt-3 pt-2.5 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs font-mono">
-              <label className="flex items-center gap-2 cursor-pointer text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-200 select-none">
+            <div className="mt-3 pt-2.5 border-t border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+              <label className="flex items-center gap-2 cursor-pointer text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 select-none">
                 <input
                   type="checkbox"
                   checked={lockThemeToLink}
@@ -708,44 +836,44 @@ Billy Benjamin`
                 <span>Lock Client Link to Current Theme (?theme={theme})</span>
               </label>
 
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase">
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase">
                 {theme === 'dark' ? 'Obsidian link' : 'Daylight link'}
               </span>
             </div>
 
           </div>
 
-          {/* Sub-Tabs Selector */}
-          <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-mono transition-colors">
+          {/* Sub-Tabs Recessed Segmented Bar */}
+          <div className="p-1 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200/90 dark:border-zinc-800/90 flex gap-1 text-xs font-mono">
             <button
               onClick={() => setActiveInspectorTab('audit')}
-              className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
+              className={`flex-1 py-1.5 px-2 text-center transition-all ${
                 activeInspectorTab === 'audit'
-                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
+                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 font-semibold shadow-2xs border border-zinc-200/80 dark:border-zinc-800'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 border border-transparent'
               }`}
             >
-              SUB-TAB A: TEARDOWN & CONTACTS
+              01 TEARDOWN & CONTACTS
             </button>
             <button
               onClick={() => setActiveInspectorTab('sequence')}
-              className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
+              className={`flex-1 py-1.5 px-2 text-center transition-all ${
                 activeInspectorTab === 'sequence'
-                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
+                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 font-semibold shadow-2xs border border-zinc-200/80 dark:border-zinc-800'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 border border-transparent'
               }`}
             >
-              SUB-TAB B: 4-STAGE OUTREACH
+              02 4-STAGE OUTREACH
             </button>
             <button
               onClick={() => setActiveInspectorTab('sow')}
-              className={`flex-1 py-2.5 text-center transition-colors border-b-2 ${
+              className={`flex-1 py-1.5 px-2 text-center transition-all ${
                 activeInspectorTab === 'sow'
-                  ? 'border-zinc-950 dark:border-zinc-50 text-zinc-950 dark:text-zinc-50 font-bold bg-white dark:bg-zinc-950'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 bg-zinc-50 dark:bg-zinc-900/60'
+                  ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 font-semibold shadow-2xs border border-zinc-200/80 dark:border-zinc-800'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 border border-transparent'
               }`}
             >
-              SUB-TAB C: SOW & CONFIG
+              03 SOW & CONFIG
             </button>
           </div>
 
@@ -762,21 +890,24 @@ Billy Benjamin`
                     <ShieldAlert size={14} strokeWidth={1.5} />
                     <span>Primary Architectural Friction Headline</span>
                   </div>
-                  <p className="text-sm font-sans font-medium leading-snug">
+                  <p className="text-[13.5px] font-sans font-medium leading-relaxed">
                     "{selectedBrand.forensicAudit.primaryFrictionHeadline}"
                   </p>
                 </div>
 
                 {/* Brand Strengths */}
                 <div>
-                  <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-2">
-                    Validated Brand Equity & Moats
-                  </h4>
-                  <ul className="space-y-1.5 font-sans">
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                    <h4 className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
+                      Validated Brand Equity & Moats
+                    </h4>
+                    <span className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">01</span>
+                  </div>
+                  <ul className="space-y-2 font-sans">
                     {selectedBrand.forensicAudit.brandStrengths.map((str, idx) => (
-                      <li key={idx} className="p-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 flex items-start gap-2">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-500 font-bold">{idx + 1}.</span>
-                        <span>{str}</span>
+                      <li key={idx} className="p-3 bg-zinc-50/70 dark:bg-zinc-900/60 border border-zinc-200/90 dark:border-zinc-800/90 text-zinc-800 dark:text-zinc-200 flex items-start gap-2.5">
+                        <span className="font-mono text-zinc-400 dark:text-zinc-500 font-bold text-xs shrink-0">0{idx + 1}.</span>
+                        <span className="text-[13.5px] leading-relaxed text-zinc-700 dark:text-zinc-300">{str}</span>
                       </li>
                     ))}
                   </ul>
@@ -784,27 +915,33 @@ Billy Benjamin`
 
                 {/* 3 Technical Bottlenecks */}
                 <div>
-                  <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-2">
-                    Granular Technical / UX Failure Modes
-                  </h4>
-                  <div className="space-y-2">
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                    <h4 className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
+                      Granular Technical / UX Failure Modes
+                    </h4>
+                    <span className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">02</span>
+                  </div>
+                  <div className="space-y-2.5">
                     {selectedBrand.forensicAudit.technicalBottlenecks.map((bot, idx) => (
-                      <div key={idx} className="p-3 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <span className="font-mono text-[10px] uppercase text-zinc-500 dark:text-zinc-400 block mb-1">
-                          BOTTLENECK {idx + 1}
+                      <div key={idx} className="p-3.5 border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214]">
+                        <span className="font-mono text-[10px] uppercase text-zinc-500 dark:text-zinc-400 font-semibold block mb-1">
+                          BOTTLENECK 0{idx + 1}
                         </span>
-                        <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans">{bot}</p>
+                        <p className="text-[13.5px] text-zinc-700 dark:text-zinc-300 leading-relaxed font-sans">{bot}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Inline-Editable Contact Intelligence Form */}
-                <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                <div className="pt-4 border-t border-zinc-200/80 dark:border-zinc-800/80">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
-                      Contact & Decision-Maker Intelligence
-                    </h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
+                        Contact & Decision-Maker Intelligence
+                      </h4>
+                      <span className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">03</span>
+                    </div>
                     <button
                       onClick={saveContacts}
                       className="text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 px-2.5 py-1 transition-colors"
@@ -852,14 +989,14 @@ Billy Benjamin`
             {/* SUB-TAB B: 4-STAGE OUTREACH SEQUENCE GENERATOR */}
             {activeInspectorTab === 'sequence' && (
               <div className="space-y-4">
-                <div className="p-3 bg-zinc-100/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
+                <div className="p-3 bg-zinc-100/80 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono text-zinc-600 dark:text-zinc-300 flex items-center justify-between">
                   <span>AUTONOMOUS SEQUENCE GENERATOR</span>
                   <span className="font-bold text-zinc-950 dark:text-zinc-50">4 TOUCHPOINTS READY</span>
                 </div>
 
                 {sequenceTouches.map((touch, idx) => (
-                  <div key={idx} className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                    <div className="p-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div key={idx} className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214]">
+                    <div className="p-3 bg-[#F7F7F5] dark:bg-zinc-900/70 border-b border-zinc-200/90 dark:border-zinc-800/90 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-black bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 px-1.5 py-0.5">
                           {touch.step}
@@ -867,21 +1004,21 @@ Billy Benjamin`
                         <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{touch.day}</span>
                         <span className="font-sans font-semibold text-xs text-zinc-900 dark:text-zinc-100">• {touch.title}</span>
                       </div>
-                      <span className="text-[10px] font-mono border border-zinc-300 dark:border-zinc-700 px-2 py-0.5 uppercase bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">
+                      <span className="text-[10px] font-mono border border-zinc-300 dark:border-zinc-700 px-2 py-0.5 uppercase bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200">
                         {touch.channel}
                       </span>
                     </div>
 
-                    <div className="p-3 space-y-2">
-                      <div className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 border border-zinc-100 dark:border-zinc-800">
-                        <span className="text-zinc-400 dark:text-zinc-500">Subject: </span>{touch.subject}
+                    <div className="p-3.5 space-y-2.5">
+                      <div className="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900/50 p-2 border border-zinc-100 dark:border-zinc-800">
+                        <span className="text-zinc-500 dark:text-zinc-400">Subject: </span>{touch.subject}
                       </div>
 
                       <textarea
                         readOnly
                         rows={8}
                         value={touch.body}
-                        className="w-full p-2.5 text-xs font-mono bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none resize-none leading-relaxed text-zinc-800 dark:text-zinc-200"
+                        className="w-full p-3 text-[13.5px] font-mono bg-zinc-50/60 dark:bg-zinc-900/60 border border-zinc-200/90 dark:border-zinc-800/90 focus:outline-none resize-none leading-relaxed text-zinc-800 dark:text-zinc-200"
                       />
 
                       <div className="flex items-center justify-between pt-1">
@@ -891,12 +1028,16 @@ Billy Benjamin`
 
                         <button
                           onClick={() => copySequenceTouch(touch.body, idx)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold transition-all ${
+                            copiedTouchIndex === idx
+                              ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border border-zinc-950 dark:border-zinc-100'
+                              : 'bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50'
+                          }`}
                         >
                           {copiedTouchIndex === idx ? (
                             <>
                               <Check size={12} strokeWidth={2} />
-                              <span>COPIED & ACTIVE</span>
+                              <span>Copied to Clipboard ✓</span>
                             </>
                           ) : (
                             <>
@@ -916,8 +1057,8 @@ Billy Benjamin`
             {activeInspectorTab === 'sow' && (
               <div className="space-y-6 text-xs font-mono">
                 
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 space-y-3">
-                  <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 font-bold">
+                <div className="p-4 bg-zinc-50/70 dark:bg-[#18181B] border border-zinc-200/90 dark:border-zinc-800/90 space-y-3">
+                  <h4 className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold">
                     Custom Retainer & SLA Variables
                   </h4>
 
@@ -953,23 +1094,23 @@ Billy Benjamin`
                 </div>
 
                 {/* Live Payback & ROI Summary */}
-                <div className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-2">
-                  <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 block">SOW Commercial Telemetry</span>
-                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
-                    <span className="text-zinc-600 dark:text-zinc-400">Fixed Architecture Investment:</span>
-                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatCurrency(selectedBrand.metrics.implementationFeeUSD)}</span>
+                <div className="p-4 border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] space-y-2">
+                  <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 font-semibold block">SOW Commercial Telemetry</span>
+                  <div className="flex justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                    <span className="text-zinc-600 dark:text-zinc-300">Fixed Architecture Investment:</span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{formatCurrency(selectedBrand.metrics.implementationFeeUSD)}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
-                    <span className="text-zinc-600 dark:text-zinc-400">Projected Monthly GMV Lift:</span>
-                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo</span>
+                  <div className="flex justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                    <span className="text-zinc-600 dark:text-zinc-300">Projected Monthly GMV Lift:</span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">+{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
-                    <span className="text-zinc-600 dark:text-zinc-400">Payback Timeline Window:</span>
-                    <span className="font-bold text-zinc-950 dark:text-zinc-50">{selectedCalc.retainerPaybackDays} Business Days</span>
+                  <div className="flex justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                    <span className="text-zinc-600 dark:text-zinc-300">Payback Timeline Window:</span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{selectedCalc.retainerPaybackDays} Business Days</span>
                   </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-zinc-600 dark:text-zinc-400">First-Year Net ROI Multiple:</span>
-                    <span className="font-bold text-zinc-950 dark:text-zinc-50">
+                  <div className="flex justify-between py-1.5">
+                    <span className="text-zinc-600 dark:text-zinc-300">First-Year Net ROI Multiple:</span>
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                       {(selectedCalc.annualRevenueRecovered / selectedBrand.metrics.implementationFeeUSD).toFixed(1)}x Multiple
                     </span>
                   </div>
@@ -978,7 +1119,7 @@ Billy Benjamin`
                 <div className="pt-2">
                   <Link
                     to={`/proposal/${selectedBrand.slug}${themeQuery}`}
-                    className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-950 dark:text-zinc-50 font-bold flex items-center justify-center gap-2 transition-colors"
+                    className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold flex items-center justify-center gap-2 transition-colors"
                   >
                     <span>View Print-Ready Commercial Proposal</span>
                     <ArrowRight size={14} strokeWidth={1.5} />
