@@ -47,6 +47,14 @@ export default function CommercialProposalView() {
     implementationFeeUSD: brand.metrics.implementationFeeUSD
   });
 
+  const primaryFounder = brand.founders?.[0] || {
+    name: brand.executiveOutreach?.primaryFounderName || "Founder",
+    role: brand.executiveOutreach?.primaryFounderRole || "Founder & CEO",
+    personalIG: brand.executiveOutreach?.primaryPersonalIG || brand.instagram.handle,
+    directEmail: brand.executiveOutreach?.directEmail || brand.email,
+    founderHook: brand.executiveOutreach?.founderHook || "Direct-to-consumer brand craft and conversion architecture."
+  };
+
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -70,7 +78,8 @@ Scope Summary:
 Please forward the engagement agreement, deposit invoice, and technical onboarding link so we can initiate Week 1 deployment.
 
 Best regards,
-${brand.decisionMakerTitles.split(',')[0]}
+${primaryFounder.name}
+${primaryFounder.role}
 ${brand.name}`)}`;
 
   return (
@@ -142,7 +151,7 @@ ${brand.name}`)}`;
               </span>
               <p className="font-bold text-zinc-950 dark:text-zinc-50 print:text-black pt-1">REFERENCE: {refId}</p>
               <p className="text-zinc-500 dark:text-zinc-400 print:text-zinc-600">DATE: {currentDate}</p>
-              <p className="text-zinc-500 dark:text-zinc-400 print:text-zinc-600">CLIENT: {brand.name}</p>
+              <p className="text-zinc-500 dark:text-zinc-400 print:text-zinc-600">CLIENT: {brand.name} (ATTN: {primaryFounder.name}, {primaryFounder.role})</p>
               <p className="text-zinc-500 dark:text-zinc-400 print:text-zinc-600">JURISDICTION: {brand.hqLocation}</p>
             </div>
           </div>
@@ -279,8 +288,9 @@ ${brand.name}`)}`;
                   [Authorized Signature]
                 </div>
                 <div className="text-[11px] text-zinc-600 dark:text-zinc-400 print:text-zinc-700">
-                  <p>Target Title: {brand.decisionMakerTitles.split(',')[0]}</p>
-                  <p>Entity: {brand.name}</p>
+                  <p>Authorized Signatory: {primaryFounder.name}</p>
+                  <p>Title: {primaryFounder.role}</p>
+                  <p>Direct Bypass: {primaryFounder.directEmail}</p>
                   <p>Date: Pending Kickoff</p>
                 </div>
               </div>

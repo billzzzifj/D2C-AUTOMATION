@@ -116,6 +116,14 @@ export default function ClientForensicAuditView() {
     implementationFeeUSD: brand.metrics.implementationFeeUSD
   });
 
+  const primaryFounder = brand.founders?.[0] || {
+    name: brand.executiveOutreach?.primaryFounderName || "Founder",
+    role: brand.executiveOutreach?.primaryFounderRole || "Founder & CEO",
+    personalIG: brand.executiveOutreach?.primaryPersonalIG || brand.instagram.handle,
+    directEmail: brand.executiveOutreach?.directEmail || brand.email,
+    founderHook: brand.executiveOutreach?.founderHook || "Direct-to-consumer brand craft and conversion architecture."
+  };
+
   return (
     <div className="min-h-screen bg-[#F7F7F5] dark:bg-[#0B0B0C] text-zinc-950 dark:text-zinc-50 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-50 dark:selection:text-zinc-950 pb-28 transition-colors duration-150">
       
@@ -141,7 +149,7 @@ export default function ClientForensicAuditView() {
           {/* Center Target Pill */}
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-white dark:bg-[#121214] border border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono">
             <span className="text-zinc-500 dark:text-zinc-400">PREPARED FOR:</span>
-            <span className="font-bold text-zinc-950 dark:text-zinc-50 tracking-wide uppercase">{brand.name}</span>
+            <span className="font-bold text-zinc-950 dark:text-zinc-50 tracking-wide uppercase">{primaryFounder.name} & {brand.name}</span>
           </div>
 
           {/* Right Action Controls */}
@@ -181,7 +189,7 @@ export default function ClientForensicAuditView() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-200/80 dark:border-zinc-800/80">
             <div>
               <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
-                BILLY BENJAMIN CONSULTING // SYSTEMS ARCHITECTURE REPORT
+                PRIVATE ARCHITECTURAL BRIEF // PREPARED FOR {primaryFounder.name.toUpperCase()} & THE {brand.name.toUpperCase()} EXECUTIVE TEAM
               </span>
               <h1 className="text-3xl sm:text-5xl font-black font-sans uppercase tracking-tight text-zinc-950 dark:text-zinc-50">
                 {brand.name}
@@ -214,7 +222,7 @@ export default function ClientForensicAuditView() {
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200/80 dark:border-zinc-800/80 text-[11px] font-mono">
             <span className="font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-              EXECUTIVE SUMMARY // 5-SECOND FOUNDER TAKEAWAY
+              EXECUTIVE SUMMARY // 5-SECOND BRIEFING FOR {primaryFounder.name.toUpperCase()}
             </span>
             <span className="text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">HIGH-LEVERAGE SYNTHESIS</span>
           </div>

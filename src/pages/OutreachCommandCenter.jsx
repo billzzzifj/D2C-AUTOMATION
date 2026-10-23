@@ -8,28 +8,21 @@ import { calculateRevenueImpact, formatCurrency, formatNumber, formatPercent } f
 import { 
   Download, 
   Search, 
-  Sliders, 
   ExternalLink, 
   Copy, 
   Check, 
   Mail, 
   FileText, 
-  TrendingUp, 
   ShieldAlert, 
-  Clock, 
-  DollarSign, 
-  ArrowUpRight,
-  ChevronRight,
-  ChevronLeft,
-  Eye,
-  RefreshCw,
-  Send,
-  UserCheck,
-  Building,
-  Layers,
-  ArrowRight,
-  Sun,
-  Moon
+  ChevronRight, 
+  ChevronLeft, 
+  Eye, 
+  RefreshCw, 
+  Building, 
+  ArrowRight, 
+  User, 
+  Target, 
+  Crosshair 
 } from 'lucide-react';
 
 export default function OutreachCommandCenter() {
@@ -53,6 +46,7 @@ export default function OutreachCommandCenter() {
     updateBrandStatus,
     updateBrandContacts,
     updateBrandMetrics,
+    togglePincerStep,
     resetAllToDefaults,
     exportMasterCSV,
     showToast,
@@ -60,8 +54,10 @@ export default function OutreachCommandCenter() {
   } = useBrands();
 
   const [activeInspectorTab, setActiveInspectorTab] = useState('audit'); // 'audit' | 'sequence' | 'sow'
+  const [targetMode, setTargetMode] = useState('founder'); // 'founder' | 'brand' (default founder direct)
   const [copiedTouchIndex, setCopiedTouchIndex] = useState(null);
   const [copiedLinkType, setCopiedLinkType] = useState(null); // 'demo' | 'proposal'
+  const [copiedPincerStep, setCopiedPincerStep] = useState(null);
   const [lockThemeToLink, setLockThemeToLink] = useState(true);
 
   // Stepper & keyboard navigation through filtered brands
@@ -139,6 +135,28 @@ export default function OutreachCommandCenter() {
     implementationFeeUSD: selectedBrand.metrics.implementationFeeUSD
   });
 
+  // Extract Founder Intelligence for direct executive recon
+  const primaryFounder = selectedBrand.founders?.[0] || {
+    name: selectedBrand.executiveOutreach?.primaryFounderName || "Founder",
+    role: selectedBrand.executiveOutreach?.primaryFounderRole || "Founder & CEO",
+    personalIG: selectedBrand.executiveOutreach?.primaryPersonalIG || selectedBrand.instagram.handle,
+    personalIGUrl: selectedBrand.executiveOutreach?.primaryPersonalIGUrl || selectedBrand.instagram.url,
+    directEmail: selectedBrand.executiveOutreach?.directEmail || selectedBrand.email,
+    linkedinUrl: selectedBrand.executiveOutreach?.linkedinSearchUrl || selectedBrand.linkedinSearchUrl,
+    founderHook: selectedBrand.executiveOutreach?.founderHook || "Direct-to-consumer brand craft and conversion architecture."
+  };
+  const founderFirstName = primaryFounder.name.split(' ')[0] || primaryFounder.name;
+  const pincerProgress = selectedBrand.pincerProgress || [false, false, false];
+  const pincerCompletedCount = pincerProgress.filter(Boolean).length;
+  const isPincerComplete = pincerCompletedCount === 3;
+
+  const copyPincerSnippet = (text, stepKey) => {
+    navigator.clipboard.writeText(text);
+    setCopiedPincerStep(stepKey);
+    showToast(`Copied ${stepKey === 'step2' ? '2-Line IG DM' : 'LinkedIn Note'} to clipboard`);
+    setTimeout(() => setCopiedPincerStep(null), 2500);
+  };
+
   const themeQuery = lockThemeToLink ? `?theme=${theme}` : '';
   const demoLink = `${window.location.origin}${window.location.pathname}#/demo/${selectedBrand.slug}${themeQuery}`;
   const proposalLink = `${window.location.origin}${window.location.pathname}#/proposal/${selectedBrand.slug}${themeQuery}`;
@@ -150,25 +168,95 @@ export default function OutreachCommandCenter() {
     setTimeout(() => setCopiedLinkType(null), 2000);
   };
 
-  // 4-Stage Automated Sequence Scripts (Dynamic zero-web / drop-site vs. scaled micro-store)
+  // 4-Stage Automated Sequence Scripts (Dynamic: Founder-Direct vs. Brand Desk + Zero-Web vs. Scaled)
   const isZeroWebOrDrop = selectedBrand.webStatus === "IG DM / Linktree Only (No Website)" || selectedBrand.webStatus === "Password-Locked Drop Site";
 
-  const sequenceTouches = isZeroWebOrDrop ? [
-    {
-      step: "TOUCH 01",
-      day: "Day 1",
-      channel: "Instagram DM",
-      title: "Founder Direct DM // The Flagship Prototype",
-      subject: "Instagram Direct Message",
-      body: `Hey ${selectedBrand.name} team — huge respect for the craft and visual direction. Noticed you're currently routing orders through ${selectedBrand.webStatus}, which means you're likely losing ~60% of impulse international buyers who won't wait on manual DM replies or locked drop pages. I built a working prototype of a custom editorial flagship + automated configurator tailored specifically for ${selectedBrand.name} showing how it unlocks +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in captured orders: ${demoLink}`
-    },
-    {
-      step: "TOUCH 02",
-      day: "Day 3",
-      channel: "Cold Email",
-      title: "The Zero-to-One Flagship SOW",
-      subject: `Flagship blueprint: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo by replacing ${selectedBrand.name}'s ${selectedBrand.webStatus}`,
-      body: `Hey ${selectedBrand.name} team,
+  const sequenceTouches = isZeroWebOrDrop ? (
+    targetMode === 'founder' ? [
+      {
+        step: "TOUCH 01",
+        day: "Day 1",
+        channel: "Founder Personal IG DM",
+        title: "Founder Direct Bypass // The Flagship Wireframe",
+        subject: "Direct Message",
+        body: `Hey ${founderFirstName} — huge respect for what you've built with ${selectedBrand.name} (${primaryFounder.founderHook}). Noticed you're currently routing orders through ${selectedBrand.webStatus}, which means you're likely losing ~60% of impulse international buyers who won't wait on manual DM replies or locked drop pages. I built a working prototype of a custom editorial flagship + automated configurator tailored specifically for ${selectedBrand.name} showing how it unlocks +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in captured orders: ${demoLink}`
+      },
+      {
+        step: "TOUCH 02",
+        day: "Day 3",
+        channel: "Founder Direct Email",
+        title: "The Zero-to-One Flagship SOW",
+        subject: `Flagship blueprint: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo by replacing ${selectedBrand.name}'s ${selectedBrand.webStatus}`,
+        body: `Hey ${founderFirstName},
+
+I’m the Principal E-Commerce Systems Architect at Billy Benjamin Consulting. 
+
+${primaryFounder.founderHook}
+
+We audited ${selectedBrand.name} and modeled how replacing manual ${selectedBrand.webStatus} friction with a ${selectedBrand.metrics.turnaroundDays}-day turnkey editorial flagship captures an estimated +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in net-new GMV (+${formatCurrency(selectedCalc.annualRevenueRecovered)}/year).
+
+Our architecture compounds 3 turnkey systems:
+1. ${selectedBrand.solutions[0].title} (+${selectedBrand.solutions[0].liftPercentage}% CVR lever)
+2. ${selectedBrand.solutions[1].title} (+${selectedBrand.solutions[1].liftPercentage}% AOV lever)
+3. ${selectedBrand.solutions[2].title} (+${selectedBrand.solutions[2].liftPercentage}% LTV lever)
+
+At a fixed engagement fee of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the architecture achieves full payback in ${selectedCalc.retainerPaybackDays} business days.
+
+We deployed the working prototype and interactive wireframes here:
+${demoLink}
+
+Open to sending over a 3-minute technical walkthrough if you're exploring launching a permanent storefront.
+
+Billy Benjamin
+Principal Architect, Billy Benjamin Consulting`
+      },
+      {
+        step: "TOUCH 03",
+        day: "Day 5",
+        channel: "LinkedIn Founder InMail",
+        title: "Founder / Managing Director Note",
+        subject: `${selectedBrand.name} flagship transition & ${formatCurrency(selectedCalc.annualRevenueRecovered)} captured GMV`,
+        body: `Hi ${founderFirstName} — huge admirer of ${selectedBrand.name}'s craft and aesthetic positioning in ${selectedBrand.sector}.
+
+We engineer high-converting editorial flagships for independent cult labels. We modeled how transitioning from ${selectedBrand.webStatus} into an automated mobile storefront recaptures an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue.
+
+We deployed a private working prototype and Statement of Work here:
+${demoLink}
+
+Would love to share the technical wireframe with you if you have 5 minutes this week.`
+      },
+      {
+        step: "TOUCH 04",
+        day: "Day 8",
+        channel: "Breakup Email",
+        title: "Closing File & Flagship SOW",
+        subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
+        body: `Hey ${founderFirstName},
+
+Closing out your architectural file for now. At ${selectedBrand.metrics.turnaroundDays} business days turnaround and a fixed investment of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the projected ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in recaptured revenue achieves full payback in exactly ${selectedCalc.retainerPaybackDays} days post-launch.
+
+Whenever you're ready to transition off ${selectedBrand.webStatus} to a scalable flagship, your interactive audit and scope remain live here:
+${proposalLink}
+
+Best of luck with the upcoming drops,
+Billy Benjamin`
+      }
+    ] : [
+      {
+        step: "TOUCH 01",
+        day: "Day 1",
+        channel: "Instagram DM",
+        title: "Brand Desk DM // The Flagship Prototype",
+        subject: "Instagram Direct Message",
+        body: `Hey ${selectedBrand.name} team — huge respect for the craft and visual direction. Noticed you're currently routing orders through ${selectedBrand.webStatus}, which means you're likely losing ~60% of impulse international buyers who won't wait on manual DM replies or locked drop pages. I built a working prototype of a custom editorial flagship + automated configurator tailored specifically for ${selectedBrand.name} showing how it unlocks +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in captured orders: ${demoLink}`
+      },
+      {
+        step: "TOUCH 02",
+        day: "Day 3",
+        channel: "Cold Email",
+        title: "The Zero-to-One Flagship SOW",
+        subject: `Flagship blueprint: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo by replacing ${selectedBrand.name}'s ${selectedBrand.webStatus}`,
+        body: `Hey ${selectedBrand.name} team,
 
 I’m the Principal E-Commerce Systems Architect at Billy Benjamin Consulting. 
 
@@ -188,14 +276,14 @@ Open to sending over a 3-minute technical walkthrough if you're exploring launch
 
 Billy Benjamin
 Principal Architect, Billy Benjamin Consulting`
-    },
-    {
-      step: "TOUCH 03",
-      day: "Day 5",
-      channel: "LinkedIn InMail",
-      title: "Founder / Managing Director Note",
-      subject: `${selectedBrand.name} flagship transition & ${formatCurrency(selectedCalc.annualRevenueRecovered)} captured GMV`,
-      body: `Hi team — huge admirer of ${selectedBrand.name}'s craft and aesthetic positioning in ${selectedBrand.sector}.
+      },
+      {
+        step: "TOUCH 03",
+        day: "Day 5",
+        channel: "LinkedIn InMail",
+        title: "Managing Director Note",
+        subject: `${selectedBrand.name} flagship transition & ${formatCurrency(selectedCalc.annualRevenueRecovered)} captured GMV`,
+        body: `Hi team — huge admirer of ${selectedBrand.name}'s craft and aesthetic positioning in ${selectedBrand.sector}.
 
 We engineer high-converting editorial flagships for independent cult labels. We modeled how transitioning from ${selectedBrand.webStatus} into an automated mobile storefront recaptures an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue.
 
@@ -203,14 +291,14 @@ We deployed a private working prototype and Statement of Work here:
 ${demoLink}
 
 Would love to share the technical wireframe with your leadership if you have 5 minutes this week.`
-    },
-    {
-      step: "TOUCH 04",
-      day: "Day 8",
-      channel: "Breakup Email",
-      title: "Closing File & Flagship SOW",
-      subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
-      body: `Hey ${selectedBrand.name} team,
+      },
+      {
+        step: "TOUCH 04",
+        day: "Day 8",
+        channel: "Breakup Email",
+        title: "Closing File & Flagship SOW",
+        subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
+        body: `Hey ${selectedBrand.name} team,
 
 Closing out your architectural file for now. At ${selectedBrand.metrics.turnaroundDays} business days turnaround and a fixed investment of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the projected ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in recaptured revenue achieves full payback in exactly ${selectedCalc.retainerPaybackDays} days post-launch.
 
@@ -219,15 +307,90 @@ ${proposalLink}
 
 Best of luck with the upcoming drops,
 Billy Benjamin`
-    }
-  ] : [
-    {
-      step: "TOUCH 01",
-      day: "Day 1",
-      channel: "Cold Email",
-      title: "The Forensic Revenue Audit",
-      subject: `Forensic audit: $${Math.round(selectedCalc.monthlyRevenueRecovered / 1000)}k/mo conversion leak on ${selectedBrand.name}'s mobile storefront`,
-      body: `Hey ${selectedBrand.name} team,
+      }
+    ]
+  ) : (
+    targetMode === 'founder' ? [
+      {
+        step: "TOUCH 01",
+        day: "Day 1",
+        channel: "Founder Direct Email",
+        title: "Founder-Direct Forensic Revenue Audit",
+        subject: `Forensic audit: $${Math.round(selectedCalc.monthlyRevenueRecovered / 1000)}k/mo conversion leak on ${selectedBrand.name}'s mobile storefront`,
+        body: `Hey ${founderFirstName},
+
+I’m the Principal CRO Systems Architect at Billy Benjamin Consulting. 
+
+${primaryFounder.founderHook}
+
+We conducted a technical architectural audit of ${selectedBrand.name}'s mobile storefront. Our models isolated a primary bottleneck: "${selectedBrand.forensicAudit.primaryFrictionHeadline}"
+
+With an estimated ${formatNumber(selectedBrand.metrics.monthlyTraffic)} monthly sessions and $${selectedBrand.metrics.currentAOV} AOV, compounding 3 engineering interventions:
+1. ${selectedBrand.solutions[0].title} (+${selectedBrand.solutions[0].liftPercentage}% CVR)
+2. ${selectedBrand.solutions[1].title} (+${selectedBrand.solutions[1].liftPercentage}% AOV)
+3. ${selectedBrand.solutions[2].title} (+${selectedBrand.solutions[2].liftPercentage}% LTV)
+
+recaptures an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in net-new GMV (${formatCurrency(selectedCalc.annualRevenueRecovered)}/year). Full payback achieved in ${selectedCalc.retainerPaybackDays} business days at a fixed fee of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}.
+
+We modeled the interactive architecture report and wireframes here:
+${demoLink}
+
+Open to sending over a 3-minute technical teardown if you're interested in reviewing the live model.
+
+Billy Benjamin
+Principal Architect, Billy Benjamin Consulting`
+      },
+      {
+        step: "TOUCH 02",
+        day: "Day 3",
+        channel: "Founder Personal IG DM",
+        title: "Visual & Mobile Checkout Teardown",
+        subject: "Direct Message",
+        body: `Hey ${founderFirstName} — obsessed with your recent catalog releases for ${selectedBrand.name}. I'm a principal e-commerce systems architect and isolated a specific mobile checkout friction point costing ${selectedBrand.name} an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue. We mapped the technical wireframe solution and interactive math here: ${demoLink}`
+      },
+      {
+        step: "TOUCH 03",
+        day: "Day 5",
+        channel: "LinkedIn Founder InMail",
+        title: "Founder / Executive Director Note",
+        subject: `${selectedBrand.name} conversion engineering & ${formatCurrency(selectedCalc.annualRevenueRecovered)} leak`,
+        body: `Hi ${founderFirstName} — huge admirer of ${selectedBrand.name}'s positioning in ${selectedBrand.sector}. 
+
+Our studio engineers headless storefronts and checkout optimization for high-growth D2C brands. We stress-tested ${selectedBrand.name}'s mobile funnel against our benchmark matrix. 
+
+Current architecture is leaking an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)} every 30 days due to: "${selectedBrand.forensicAudit.primaryFrictionHeadline}".
+
+We built an interactive compound revenue simulator and Statement of Work:
+${demoLink}
+
+Would love to share the technical wireframe with you if you have 5 minutes this week.`
+      },
+      {
+        step: "TOUCH 04",
+        day: "Day 8",
+        channel: "Breakup Email",
+        title: "The Breakup & Retainer Payback Math Bump",
+        subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
+        body: `Hey ${founderFirstName},
+
+Assuming this isn't an active priority for Q2/Q3, so I will close out your diagnostic file.
+
+Final takeaway: At ${selectedBrand.metrics.turnaroundDays} days implementation turnaround and a fixed investment of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the projected ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in recaptured revenue achieves full payback in exactly ${selectedCalc.retainerPaybackDays} days post-launch.
+
+If you ever wish to deploy this architecture, the full dossier and SOW remain accessible here:
+${proposalLink}
+
+Best of luck with the upcoming drops,
+Billy Benjamin`
+      }
+    ] : [
+      {
+        step: "TOUCH 01",
+        day: "Day 1",
+        channel: "Cold Email",
+        title: "The Forensic Revenue Audit",
+        subject: `Forensic audit: $${Math.round(selectedCalc.monthlyRevenueRecovered / 1000)}k/mo conversion leak on ${selectedBrand.name}'s mobile storefront`,
+        body: `Hey ${selectedBrand.name} team,
 
 I’m the Principal CRO Systems Architect at Billy Benjamin Consulting. 
 
@@ -247,22 +410,22 @@ Open to sending over a 3-minute technical teardown if your e-commerce engineerin
 
 Billy Benjamin
 Principal Architect, Billy Benjamin Consulting`
-    },
-    {
-      step: "TOUCH 02",
-      day: "Day 3",
-      channel: "Instagram DM",
-      title: "Visual & Mobile Checkout Teardown",
-      subject: "Instagram Direct Message",
-      body: `Hey ${selectedBrand.name} team—obsessed with your recent catalog releases. I'm a principal e-commerce systems architect and isolated a specific mobile checkout friction point costing ${selectedBrand.name} an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue. We mapped the technical wireframe solution and interactive math here: ${demoLink}`
-    },
-    {
-      step: "TOUCH 03",
-      day: "Day 5",
-      channel: "LinkedIn InMail",
-      title: "Founder / E-Com Director Note",
-      subject: `${selectedBrand.name} conversion engineering & ${formatCurrency(selectedCalc.annualRevenueRecovered)} leak`,
-      body: `Hi team — huge admirer of ${selectedBrand.name}'s positioning in ${selectedBrand.sector}. 
+      },
+      {
+        step: "TOUCH 02",
+        day: "Day 3",
+        channel: "Instagram DM",
+        title: "Visual & Mobile Checkout Teardown",
+        subject: "Instagram Direct Message",
+        body: `Hey ${selectedBrand.name} team—obsessed with your recent catalog releases. I'm a principal e-commerce systems architect and isolated a specific mobile checkout friction point costing ${selectedBrand.name} an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue. We mapped the technical wireframe solution and interactive math here: ${demoLink}`
+      },
+      {
+        step: "TOUCH 03",
+        day: "Day 5",
+        channel: "LinkedIn InMail",
+        title: "E-Com Director Note",
+        subject: `${selectedBrand.name} conversion engineering & ${formatCurrency(selectedCalc.annualRevenueRecovered)} leak`,
+        body: `Hi team — huge admirer of ${selectedBrand.name}'s positioning in ${selectedBrand.sector}. 
 
 Our studio engineers headless storefronts and checkout optimization for $5M–$100M D2C brands. We stress-tested ${selectedBrand.name}'s mobile funnel against our benchmark matrix. 
 
@@ -272,14 +435,14 @@ We built an interactive compound revenue simulator and Statement of Work:
 ${demoLink}
 
 Would love to share the technical wireframe with your Head of E-Commerce if you have 5 minutes this week.`
-    },
-    {
-      step: "TOUCH 04",
-      day: "Day 8",
-      channel: "Breakup Email",
-      title: "The Breakup & Retainer Payback Math Bump",
-      subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
-      body: `Hey ${selectedBrand.name} team,
+      },
+      {
+        step: "TOUCH 04",
+        day: "Day 8",
+        channel: "Breakup Email",
+        title: "The Breakup & Retainer Payback Math Bump",
+        subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
+        body: `Hey ${selectedBrand.name} team,
 
 Assuming this isn't an active priority for Q2/Q3, so I will close out your diagnostic file.
 
@@ -290,8 +453,9 @@ ${proposalLink}
 
 Best of luck with the upcoming drops,
 Billy Benjamin`
-    }
-  ];
+      }
+    ]
+  );
 
   const copySequenceTouch = (text, index) => {
     navigator.clipboard.writeText(text);
@@ -525,6 +689,11 @@ Billy Benjamin`
                             <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
                               {brand.hqLocation}
                             </span>
+                            {brand.founders && brand.founders[0] && (
+                              <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono truncate max-w-[150px]" title={`Founder: ${brand.founders[0].name} (${brand.founders[0].role})`}>
+                                • {brand.founders[0].name}
+                              </span>
+                            )}
                             {brand.webStatus === "IG DM / Linktree Only (No Website)" ? (
                               <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider border-2 border-zinc-950 dark:border-zinc-100 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950">
                                 IG DM ONLY
@@ -562,6 +731,8 @@ Billy Benjamin`
                           <span className={`inline-block px-2 py-0.5 text-[10px] uppercase font-mono border ${
                             brand.status === 'Closed Retainer'
                               ? 'border-zinc-950 bg-black text-white dark:border-zinc-200 dark:bg-white dark:text-zinc-950 font-bold'
+                              : brand.status === 'Pincer Sequence Active'
+                              ? 'border-zinc-950 bg-zinc-950 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950 font-bold shadow-xs'
                               : brand.status === 'Call Booked'
                               ? 'border-zinc-700 bg-zinc-800 text-zinc-100 dark:border-zinc-300 dark:bg-zinc-200 dark:text-zinc-900'
                               : brand.status === 'Audit Viewed'
@@ -570,7 +741,7 @@ Billy Benjamin`
                               ? 'border-zinc-400 bg-zinc-200 text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 font-semibold'
                               : 'border-zinc-300 bg-zinc-100 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
                           }`}>
-                            {brand.status}
+                            {brand.status === 'Pincer Sequence Active' ? '● PINCER ACTIVE' : brand.status}
                           </span>
                         </td>
                       </tr>
@@ -610,6 +781,12 @@ Billy Benjamin`
                             <span className="font-sans font-bold text-sm text-zinc-950 dark:text-zinc-50">{b.name}</span>
                             <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">${b.metrics.currentAOV}</span>
                           </div>
+
+                          {b.founders && b.founders[0] && (
+                            <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono block truncate mt-0.5" title={`Founder: ${b.founders[0].name} (${b.founders[0].role})`}>
+                              Attn: {b.founders[0].name}
+                            </span>
+                          )}
                           
                           <div className="flex items-center justify-between gap-1 mt-1">
                             <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block">{b.sector}</span>
@@ -741,8 +918,43 @@ Billy Benjamin`
               </div>
             </div>
 
-            {/* Quick 1-Click Action Row with Inline Feedback */}
-            <div className="mt-4 pt-3 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap items-center gap-2">
+            {/* Dual-Target Mode Switcher (Linear.app / Swiss Minimalist Segmented Pill) */}
+            <div className="mt-4 p-1.5 bg-zinc-100/90 dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+              <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase px-1">
+                <Crosshair size={13} strokeWidth={1.5} className="text-zinc-700 dark:text-zinc-300" />
+                <span className="hidden sm:inline">ROUTING TARGET:</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setTargetMode('founder')}
+                  className={`px-2.5 py-1 text-[10.5px] font-mono font-bold uppercase transition-all flex items-center gap-1.5 ${
+                    targetMode === 'founder'
+                      ? 'bg-zinc-950 text-white dark:bg-zinc-50 dark:text-zinc-950 border border-zinc-950 dark:border-zinc-50 shadow-xs'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 bg-transparent'
+                  }`}
+                >
+                  <User size={12} strokeWidth={2} />
+                  <span>TARGET: FOUNDER PERSONAL (@{primaryFounder.personalIG.replace('@', '') || founderFirstName})</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
+                </button>
+
+                <button
+                  onClick={() => setTargetMode('brand')}
+                  className={`px-2.5 py-1 text-[10.5px] font-mono font-medium uppercase transition-all flex items-center gap-1.5 ${
+                    targetMode === 'brand'
+                      ? 'bg-zinc-950 text-white dark:bg-zinc-50 dark:text-zinc-950 border border-zinc-950 dark:border-zinc-50 shadow-xs'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 bg-transparent'
+                  }`}
+                >
+                  <Building size={12} strokeWidth={1.5} />
+                  <span>TARGET: BRAND DESK ({selectedBrand.instagram.handle})</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick 1-Click Action Row with Dynamic Routing */}
+            <div className="mt-3 pt-3 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap items-center gap-2">
               <Link
                 to={`/demo/${selectedBrand.slug}${themeQuery}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50 transition-colors shadow-sm"
@@ -773,6 +985,72 @@ Billy Benjamin`
                 )}
               </button>
 
+              {/* Dynamic Communication Channels */}
+              {targetMode === 'founder' ? (
+                <>
+                  <a
+                    href={primaryFounder.personalIGUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-emerald-600/60 dark:border-emerald-500/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-950 dark:text-emerald-300 hover:bg-emerald-100/60 transition-colors font-medium"
+                    title={`Open Founder Personal Instagram: ${primaryFounder.personalIG}`}
+                  >
+                    <span>Launch Personal IG DM ({primaryFounder.personalIG})</span>
+                    <ExternalLink size={12} strokeWidth={1.5} />
+                  </a>
+
+                  <a
+                    href={`mailto:${primaryFounder.directEmail}?subject=${encodeURIComponent(`Forensic audit: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo checkout leak on ${selectedBrand.name}'s mobile storefront`)}&body=${encodeURIComponent(`Hey ${founderFirstName},\n\nWe audited ${selectedBrand.name}'s mobile checkout and modeled how fixing high-friction bottlenecks recaptures +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in GMV:\n${demoLink}\n\nBest,\nBilly Benjamin\nPrincipal Architect, Billy Benjamin Consulting`)}`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                    title={`Email ${primaryFounder.name} direct: ${primaryFounder.directEmail}`}
+                  >
+                    <Mail size={13} strokeWidth={1.5} />
+                    <span>Email Founder Direct</span>
+                  </a>
+
+                  <a
+                    href={primaryFounder.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                    title="Launch Founder Search on LinkedIn"
+                  >
+                    <span>Founder LinkedIn</span>
+                    <ExternalLink size={12} strokeWidth={1.5} />
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a
+                    href={selectedBrand.instagram.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                    title={`Open Instagram: ${selectedBrand.instagram.handle}`}
+                  >
+                    IG: {selectedBrand.instagram.handle}
+                  </a>
+
+                  <a
+                    href={`mailto:${selectedBrand.email}?subject=${encodeURIComponent(`Forensic audit: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo leak on ${selectedBrand.name}'s mobile storefront`)}&body=${encodeURIComponent(`Hey ${selectedBrand.name} team,\n\nWe audited your storefront and wireframed 3 turnkey solutions:\n${demoLink}\n\nBest,\nBilly Benjamin`)}`}
+                    className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                    title={`Email brand desk: ${selectedBrand.email}`}
+                  >
+                    Brand Email
+                  </a>
+
+                  <a
+                    href={selectedBrand.linkedinSearchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
+                    title="Search Decision Makers on LinkedIn"
+                  >
+                    LinkedIn DM
+                  </a>
+                </>
+              )}
+
               <Link
                 to={`/proposal/${selectedBrand.slug}${themeQuery}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition-colors"
@@ -802,26 +1080,6 @@ Billy Benjamin`
                   </>
                 )}
               </button>
-
-              <a
-                href={selectedBrand.instagram.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
-                title={`Open Instagram: ${selectedBrand.instagram.handle}`}
-              >
-                IG: {selectedBrand.instagram.handle}
-              </a>
-
-              <a
-                href={selectedBrand.linkedinSearchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 text-xs font-mono border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
-                title="Search Decision Makers on LinkedIn"
-              >
-                LinkedIn DM
-              </a>
             </div>
 
             {/* Outreach Link Theme Lock Checkbox */}
@@ -884,6 +1142,330 @@ Billy Benjamin`
             {activeInspectorTab === 'audit' && (
               <div className="space-y-6 text-xs">
                 
+                {/* 00: FOUNDER INTELLIGENCE & EXECUTIVE RECON CARD */}
+                <div className="border border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214] p-4 space-y-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                    <div className="flex items-center gap-2">
+                      <Crosshair size={13} strokeWidth={1.5} className="text-zinc-950 dark:text-zinc-100" />
+                      <h4 className="text-[11px] font-mono text-zinc-900 dark:text-zinc-100 uppercase tracking-wider font-bold">
+                        Founder Intelligence // Executive Recon
+                      </h4>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono font-bold uppercase border border-emerald-600/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Direct Bypass Active
+                    </span>
+                  </div>
+
+                  {/* Founder Identity & Role */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-sans font-bold text-zinc-950 dark:text-zinc-50">
+                          {primaryFounder.name}
+                        </span>
+                        <span className="text-xs font-mono px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-medium">
+                          {primaryFounder.role}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Target Entity: {selectedBrand.name} • {selectedBrand.sector} • {selectedBrand.hqLocation}
+                      </p>
+                    </div>
+
+                    {selectedBrand.founders && selectedBrand.founders.length > 1 && (
+                      <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
+                        Co-Founders: {selectedBrand.founders.slice(1).map(f => `${f.name} (${f.role})`).join(', ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4-Box Direct Bypass Coordinates */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono pt-1">
+                    {/* Direct Email */}
+                    <div className="p-2.5 bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[9px] uppercase text-zinc-500 dark:text-zinc-400 block">Direct Email</span>
+                        <a
+                          href={`mailto:${primaryFounder.directEmail}`}
+                          className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 hover:underline truncate block"
+                          title="Open mail client"
+                        >
+                          {primaryFounder.directEmail}
+                        </a>
+                      </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(primaryFounder.directEmail);
+                          showToast(`Copied ${primaryFounder.directEmail} to clipboard`);
+                        }}
+                        className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition-colors shrink-0"
+                        title="Copy direct email"
+                      >
+                        <Copy size={12} strokeWidth={1.5} />
+                      </button>
+                    </div>
+
+                    {/* Personal Instagram */}
+                    <div className="p-2.5 bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[9px] uppercase text-zinc-500 dark:text-zinc-400 block">Personal IG Handle</span>
+                        <a
+                          href={primaryFounder.personalIGUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 hover:underline truncate block"
+                          title="Open Personal Instagram"
+                        >
+                          {primaryFounder.personalIG}
+                        </a>
+                      </div>
+                      <a
+                        href={primaryFounder.personalIGUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition-colors shrink-0"
+                        title="Open Instagram Profile"
+                      >
+                        <ExternalLink size={12} strokeWidth={1.5} />
+                      </a>
+                    </div>
+
+                    {/* Founder LinkedIn */}
+                    <div className="p-2.5 bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[9px] uppercase text-zinc-500 dark:text-zinc-400 block">LinkedIn Profile</span>
+                        <a
+                          href={primaryFounder.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 hover:underline truncate block"
+                          title="Search Decision Maker on LinkedIn"
+                        >
+                          Search {founderFirstName} on LinkedIn
+                        </a>
+                      </div>
+                      <a
+                        href={primaryFounder.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition-colors shrink-0"
+                        title="Open LinkedIn Search"
+                      >
+                        <ExternalLink size={12} strokeWidth={1.5} />
+                      </a>
+                    </div>
+
+                    {/* Operational Base */}
+                    <div className="p-2.5 bg-zinc-50/80 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] uppercase text-zinc-500 dark:text-zinc-400 block">Studio Base / Jurisdiction</span>
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 block">
+                          {selectedBrand.hqLocation}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-zinc-400 uppercase font-mono">Verified</span>
+                    </div>
+                  </div>
+
+                  {/* Founder Strategic Hook Quote */}
+                  <div className="p-3 bg-zinc-100/70 dark:bg-[#18181B] border border-zinc-200/80 dark:border-zinc-800/80">
+                    <span className="text-[9px] font-mono uppercase text-zinc-500 dark:text-zinc-400 font-bold block mb-1">
+                      STRATEGIC FOUNDER HOOK // ZERO-GATEKEEPER ANGLE
+                    </span>
+                    <p className="text-[12.5px] font-sans text-zinc-800 dark:text-zinc-200 italic leading-relaxed">
+                      "{primaryFounder.founderHook}"
+                    </p>
+                  </div>
+                </div>
+
+                {/* 01: THE SYNCHRONIZED PINCER PLAY // 3-STEP STRIKE */}
+                <div className={`border p-4 space-y-4 transition-all shadow-2xs ${
+                  isPincerComplete 
+                    ? 'border-zinc-950 dark:border-zinc-100 bg-white dark:bg-[#121214]' 
+                    : 'border-zinc-200/90 dark:border-zinc-800/90 bg-white dark:bg-[#121214]'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Target size={14} strokeWidth={1.5} className="text-zinc-950 dark:text-zinc-50" />
+                        <h4 className="text-[11px] font-mono text-zinc-950 dark:text-zinc-50 uppercase tracking-wider font-bold">
+                          The Synchronized Pincer Play // 3-Step Strike
+                        </h4>
+                      </div>
+                      <p className="text-[10.5px] font-mono text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Coordinated executive strike: Direct email + 2-line IG DM + LinkedIn network connect.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-mono px-2 py-0.5 border font-bold uppercase ${
+                        isPincerComplete
+                          ? 'border-zinc-950 bg-zinc-950 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950'
+                          : 'border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
+                      }`}>
+                        {pincerCompletedCount} / 3 EXECUTED
+                      </span>
+
+                      {isPincerComplete && (
+                        <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold uppercase flex items-center gap-1">
+                          <Check size={12} strokeWidth={2} />
+                          <span>Pincer Active</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3 Step Interactive Checklist */}
+                  <div className="space-y-3 font-mono">
+                    
+                    {/* STEP 1: Direct Email */}
+                    <div className={`p-3 border transition-colors ${
+                      pincerProgress[0]
+                        ? 'border-zinc-400 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-900/80'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121214]'
+                    }`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={pincerProgress[0] || false}
+                            onChange={() => togglePincerStep(selectedBrand.id, 0)}
+                            className="mt-0.5 rounded-none border-zinc-400 dark:border-zinc-600 accent-zinc-950 dark:accent-zinc-50 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-zinc-950 dark:text-zinc-50 block">
+                              STEP 01: Transmit Forensic Audit to Executive Email
+                            </span>
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block mt-0.5 font-sans">
+                              Deliver compound revenue model & wireframes directly to <span className="font-mono text-zinc-800 dark:text-zinc-200 font-semibold">{primaryFounder.directEmail}</span>.
+                            </span>
+                          </div>
+                        </label>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <a
+                            href={`mailto:${primaryFounder.directEmail}?subject=${encodeURIComponent(`Forensic audit: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo checkout leak on ${selectedBrand.name}'s mobile storefront`)}&body=${encodeURIComponent(`Hey ${founderFirstName},\n\nWe audited ${selectedBrand.name}'s mobile checkout and modeled how fixing high-friction bottlenecks recaptures +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo:\n${demoLink}\n\nBest,\nBilly Benjamin`)}`}
+                            className="px-2 py-1 text-[10px] font-bold border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            title="Launch pre-filled mail client"
+                          >
+                            Open Mailto
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* STEP 2: 2-Line Heads-Up IG DM */}
+                    <div className={`p-3 border transition-colors ${
+                      pincerProgress[1]
+                        ? 'border-zinc-400 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-900/80'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121214]'
+                    }`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={pincerProgress[1] || false}
+                            onChange={() => togglePincerStep(selectedBrand.id, 1)}
+                            className="mt-0.5 rounded-none border-zinc-400 dark:border-zinc-600 accent-zinc-950 dark:accent-zinc-50 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-zinc-950 dark:text-zinc-50 block">
+                              STEP 02: 2-Line Heads-Up on Founder Personal Instagram
+                            </span>
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block mt-0.5 font-sans">
+                              Alert <span className="font-mono text-zinc-800 dark:text-zinc-200 font-semibold">{primaryFounder.personalIG}</span> via DM so they prioritize opening their inbox.
+                            </span>
+                          </div>
+                        </label>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => copyPincerSnippet(`Hey ${founderFirstName} — dropped a private architectural teardown and wireframe for ${selectedBrand.name} to ${primaryFounder.directEmail}. No pitch, just mapped how fixing the checkout friction recovers +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo: ${demoLink}`, 'step2')}
+                            className="px-2 py-1 text-[10px] font-bold border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                          >
+                            {copiedPincerStep === 'step2' ? 'Copied ✓' : 'Copy 2-Line DM'}
+                          </button>
+                          <a
+                            href={primaryFounder.personalIGUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            title="Launch Personal IG"
+                          >
+                            <ExternalLink size={12} strokeWidth={1.5} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Script Preview Box */}
+                      <div className="mt-2.5 p-2 bg-zinc-100/60 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-800/70 text-[11px] text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
+                        <span className="text-zinc-400 font-mono text-[9px] uppercase block mb-0.5">Script Preview:</span>
+                        "Hey {founderFirstName} — dropped a private architectural teardown and wireframe for {selectedBrand.name} to {primaryFounder.directEmail}. No pitch, just mapped how fixing the checkout friction recovers +{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo: {demoLink}"
+                      </div>
+                    </div>
+
+                    {/* STEP 3: LinkedIn Executive Connect */}
+                    <div className={`p-3 border transition-colors ${
+                      pincerProgress[2]
+                        ? 'border-zinc-400 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-900/80'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121214]'
+                    }`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={pincerProgress[2] || false}
+                            onChange={() => togglePincerStep(selectedBrand.id, 2)}
+                            className="mt-0.5 rounded-none border-zinc-400 dark:border-zinc-600 accent-zinc-950 dark:accent-zinc-50 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-zinc-950 dark:text-zinc-50 block">
+                              STEP 03: LinkedIn Executive Connect & Network Strike
+                            </span>
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block mt-0.5 font-sans">
+                              Connect with <span className="font-mono text-zinc-800 dark:text-zinc-200 font-semibold">{primaryFounder.name}</span> with a custom note referencing the audit.
+                            </span>
+                          </div>
+                        </label>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => copyPincerSnippet(`Hi ${founderFirstName} — huge respect for your craft at ${selectedBrand.name}. Modeled a 3-part conversion architecture recovering +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo: ${demoLink}. Would love to connect.`, 'step3')}
+                            className="px-2 py-1 text-[10px] font-bold border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                          >
+                            {copiedPincerStep === 'step3' ? 'Copied ✓' : 'Copy Connect Note'}
+                          </button>
+                          <a
+                            href={primaryFounder.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            title="Launch LinkedIn Search"
+                          >
+                            <ExternalLink size={12} strokeWidth={1.5} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Script Preview Box */}
+                      <div className="mt-2.5 p-2 bg-zinc-100/60 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-800/70 text-[11px] text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
+                        <span className="text-zinc-400 font-mono text-[9px] uppercase block mb-0.5">Script Preview:</span>
+                        "Hi {founderFirstName} — huge respect for your craft at {selectedBrand.name}. Modeled a 3-part conversion architecture recovering +{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo: {demoLink}. Would love to connect."
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Completed Stamp */}
+                  {selectedBrand.pincerTimestamp && (
+                    <div className="p-2 bg-zinc-100/70 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
+                      <span>PINCER STRIKE LOGGED:</span>
+                      <span className="font-bold text-zinc-900 dark:text-zinc-100">{new Date(selectedBrand.pincerTimestamp).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Executive Primary Leak Box */}
                 <div className="p-4 bg-zinc-950 dark:bg-zinc-900 text-white border border-zinc-950 dark:border-zinc-800">
                   <div className="flex items-center gap-2 text-zinc-400 font-mono text-[10px] uppercase mb-1">
@@ -989,9 +1571,18 @@ Billy Benjamin`
             {/* SUB-TAB B: 4-STAGE OUTREACH SEQUENCE GENERATOR */}
             {activeInspectorTab === 'sequence' && (
               <div className="space-y-4">
-                <div className="p-3 bg-zinc-100/80 dark:bg-zinc-900/80 border border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono text-zinc-600 dark:text-zinc-300 flex items-center justify-between">
-                  <span>AUTONOMOUS SEQUENCE GENERATOR</span>
-                  <span className="font-bold text-zinc-950 dark:text-zinc-50">4 TOUCHPOINTS READY</span>
+                <div className="p-3 bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800/90 text-xs font-mono flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Crosshair size={13} strokeWidth={1.5} className="text-zinc-950 dark:text-zinc-50" />
+                    <span className="font-bold text-zinc-950 dark:text-zinc-50 uppercase">
+                      {targetMode === 'founder'
+                        ? `FOUNDER-DIRECT SEQUENCE // ATTN: ${founderFirstName.toUpperCase()} (${primaryFounder.role.toUpperCase()})`
+                        : `BRAND DESK SEQUENCE // ATTN: ${selectedBrand.name.toUpperCase()} TEAM`}
+                    </span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-500 dark:text-zinc-400">
+                    4 TOUCHPOINTS ARMED
+                  </span>
                 </div>
 
                 {sequenceTouches.map((touch, idx) => (
@@ -1021,31 +1612,67 @@ Billy Benjamin`
                         className="w-full p-3 text-[13.5px] font-mono bg-zinc-50/60 dark:bg-zinc-900/60 border border-zinc-200/90 dark:border-zinc-800/90 focus:outline-none resize-none leading-relaxed text-zinc-800 dark:text-zinc-200"
                       />
 
-                      <div className="flex items-center justify-between pt-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
                         <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
-                          Injects live {formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo calculation
+                          Live +{formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo calculation
                         </span>
 
-                        <button
-                          onClick={() => copySequenceTouch(touch.body, idx)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold transition-all ${
-                            copiedTouchIndex === idx
-                              ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border border-zinc-950 dark:border-zinc-100'
-                              : 'bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50'
-                          }`}
-                        >
-                          {copiedTouchIndex === idx ? (
-                            <>
-                              <Check size={12} strokeWidth={2} />
-                              <span>Copied to Clipboard ✓</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={12} strokeWidth={1.5} />
-                              <span>Copy Script & Mark Active</span>
-                            </>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {touch.channel.includes('Instagram') && (
+                            <a
+                              href={targetMode === 'founder' ? primaryFounder.personalIGUrl : selectedBrand.instagram.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            >
+                              <span>Open IG</span>
+                              <ExternalLink size={12} strokeWidth={1.5} />
+                            </a>
                           )}
-                        </button>
+
+                          {touch.channel.includes('Email') && (
+                            <a
+                              href={`mailto:${targetMode === 'founder' ? primaryFounder.directEmail : selectedBrand.email}?subject=${encodeURIComponent(touch.subject)}&body=${encodeURIComponent(touch.body)}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            >
+                              <Mail size={12} strokeWidth={1.5} />
+                              <span>Open Mail</span>
+                            </a>
+                          )}
+
+                          {touch.channel.includes('LinkedIn') && (
+                            <a
+                              href={targetMode === 'founder' ? primaryFounder.linkedinUrl : selectedBrand.linkedinSearchUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 transition-colors"
+                            >
+                              <span>LinkedIn</span>
+                              <ExternalLink size={12} strokeWidth={1.5} />
+                            </a>
+                          )}
+
+                          <button
+                            onClick={() => copySequenceTouch(touch.body, idx)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold transition-all ${
+                              copiedTouchIndex === idx
+                                ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 border border-zinc-950 dark:border-zinc-100'
+                                : 'bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 border border-zinc-950 dark:border-zinc-50'
+                            }`}
+                          >
+                            {copiedTouchIndex === idx ? (
+                              <>
+                                <Check size={12} strokeWidth={2} />
+                                <span>Copied ✓</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={12} strokeWidth={1.5} />
+                                <span>Copy Script & Mark Active</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

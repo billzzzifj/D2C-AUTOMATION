@@ -3,7 +3,7 @@ import { GLOBAL_D2C_TARGETS, PIPELINE_STAGES } from '../data/globalD2CTargets';
 import { calculateRevenueImpact } from '../utils/revenueMath';
 
 const BrandContext = createContext(null);
-const STORAGE_KEY = 'billy_benjamin_d2c_archive_v5';
+const STORAGE_KEY = 'billy_benjamin_d2c_archive_v7';
 
 export function BrandProvider({ children }) {
   const [brands, setBrands] = useState(() => {
@@ -12,7 +12,22 @@ export function BrandProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length === GLOBAL_D2C_TARGETS.length) {
-          return parsed;
+          return GLOBAL_D2C_TARGETS.map(defaultBrand => {
+            const savedBrand = parsed.find(b => b.id === defaultBrand.id);
+            if (!savedBrand) return defaultBrand;
+            return {
+              ...defaultBrand,
+              status: savedBrand.status || defaultBrand.status,
+              email: savedBrand.email || defaultBrand.email,
+              decisionMakerTitles: savedBrand.decisionMakerTitles || defaultBrand.decisionMakerTitles,
+              metrics: {
+                ...defaultBrand.metrics,
+                ...(savedBrand.metrics || {})
+              },
+              pincerProgress: savedBrand.pincerProgress || [false, false, false],
+              pincerTimestamp: savedBrand.pincerTimestamp || null
+            };
+          });
         }
       }
     } catch (e) {
@@ -79,6 +94,33 @@ export function BrandProvider({ children }) {
     showToast('Architectural metrics updated');
   };
 
+  const togglePincerStep = (brandId, stepIndex) => {
+    setBrands(prev => prev.map(b => {
+      if (b.id !== brandId) return b;
+      const currentProgress = b.pincerProgress || [false, false, false];
+      const newProgress = [...currentProgress];
+      newProgress[stepIndex] = !newProgress[stepIndex];
+
+      const allCompleted = newProgress[0] && newProgress[1] && newProgress[2];
+      const nowIso = new Date().toISOString();
+      const updatedBrand = {
+        ...b,
+        pincerProgress: newProgress,
+        pincerTimestamp: allCompleted ? nowIso : b.pincerTimestamp
+      };
+
+      if (allCompleted && b.status !== 'Closed Retainer' && b.status !== 'Call Booked') {
+        updatedBrand.status = 'Pincer Sequence Active';
+        showToast(`🎯 Pincer Sequence Active for ${b.name} — Founder Recon Completed!`);
+      } else {
+        const stepLabels = ['Step 1: Direct Email', 'Step 2: 2-Line IG Heads-Up DM', 'Step 3: LinkedIn Connect'];
+        showToast(`${newProgress[stepIndex] ? '✓ Logged' : 'Unchecked'}: ${stepLabels[stepIndex]}`);
+      }
+
+      return updatedBrand;
+    }));
+  };
+
   const resetAllToDefaults = () => {
     if (window.confirm('Reset all 50 brands back to master default archive state?')) {
       setBrands(GLOBAL_D2C_TARGETS);
@@ -99,7 +141,14 @@ export function BrandProvider({ children }) {
       "Website",
       "Instagram",
       "Contact Email",
+      "Founder Name",
+      "Founder Role",
+      "Founder Personal IG",
+      "Founder Direct Email",
+      "Founder Hook",
       "Pipeline Status",
+      "Pincer Active",
+      "Pincer Timestamp",
       "Monthly Traffic",
       "Current CVR (%)",
       "Current AOV ($)",
@@ -121,6 +170,13 @@ export function BrandProvider({ children }) {
         implementationFeeUSD: b.metrics.implementationFeeUSD
       });
 
+      const founderName = b.executiveOutreach?.primaryFounderName || (b.founders && b.founders[0]?.name) || "Founder";
+      const founderRole = b.executiveOutreach?.primaryFounderRole || (b.founders && b.founders[0]?.role) || "Founder";
+      const founderIG = b.executiveOutreach?.primaryPersonalIG || (b.founders && b.founders[0]?.personalIG) || "";
+      const founderEmail = b.executiveOutreach?.directEmail || (b.founders && b.founders[0]?.directEmail) || b.email;
+      const founderHook = b.executiveOutreach?.founderHook || (b.founders && b.founders[0]?.founderHook) || "";
+      const isPincerActive = b.status === 'Pincer Sequence Active' || (b.pincerProgress && b.pincerProgress.every(Boolean));
+
       return [
         `"${b.name}"`,
         `"${b.slug}"`,
@@ -131,7 +187,14 @@ export function BrandProvider({ children }) {
         `"${b.website}"`,
         `"${b.instagram.handle}"`,
         `"${b.email}"`,
+        `"${founderName}"`,
+        `"${founderRole}"`,
+        `"${founderIG}"`,
+        `"${founderEmail}"`,
+        `"${founderHook.replace(/"/g, '""')}"`,
         `"${b.status}"`,
+        isPincerActive ? "YES" : "NO",
+        `"${b.pincerTimestamp || ''}"`,
         b.metrics.monthlyTraffic,
         b.metrics.currentCVR,
         b.metrics.currentAOV,
@@ -151,7 +214,7 @@ export function BrandProvider({ children }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast('Exported Master Pipeline CSV (50 Targets)');
+    showToast('Exported Master Pipeline CSV (50 Targets + Founder Recon)');
   };
 
   // Aggregate telemetry
@@ -181,7 +244,7 @@ export function BrandProvider({ children }) {
         tier2Count++;
       }
 
-      if (b.status === 'Sequence Active' || b.status === 'Audit Viewed' || b.status === 'Call Booked') {
+      if (b.status === 'Sequence Active' || b.status === 'Pincer Sequence Active' || b.status === 'Audit Viewed' || b.status === 'Call Booked') {
         activePipelineRetainerValue += b.metrics.implementationFeeUSD;
         brandsInSequenceCount++;
       } else if (b.status === 'Closed Retainer') {
@@ -243,6 +306,7 @@ export function BrandProvider({ children }) {
         updateBrandStatus,
         updateBrandContacts,
         updateBrandMetrics,
+        togglePincerStep,
         resetAllToDefaults,
         exportMasterCSV,
         toastMessage,
