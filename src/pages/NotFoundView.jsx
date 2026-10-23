@@ -31,7 +31,7 @@ export default function NotFoundView() {
         </h1>
 
         <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
-          The requested URL path does not correspond to an indexed e-commerce brand. Select any of the 20 active target brand audits below:
+          The requested URL path does not correspond to an indexed e-commerce brand. Select any of the {GLOBAL_D2C_TARGETS.length} active target brand audits below:
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left pt-4">

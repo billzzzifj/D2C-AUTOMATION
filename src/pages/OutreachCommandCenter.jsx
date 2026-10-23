@@ -42,6 +42,8 @@ export default function OutreachCommandCenter() {
     setSelectedBrandId,
     viewMode,
     setViewMode,
+    activeTier,
+    setActiveTier,
     activeSector,
     setActiveSector,
     searchQuery,
@@ -106,8 +108,77 @@ export default function OutreachCommandCenter() {
   const demoLink = `${window.location.origin}${window.location.pathname}#/demo/${selectedBrand.slug}${themeQuery}`;
   const proposalLink = `${window.location.origin}${window.location.pathname}#/proposal/${selectedBrand.slug}${themeQuery}`;
 
-  // 4-Stage Automated Sequence Scripts
-  const sequenceTouches = [
+  // 4-Stage Automated Sequence Scripts (Dynamic zero-web / drop-site vs. scaled micro-store)
+  const isZeroWebOrDrop = selectedBrand.webStatus === "IG DM / Linktree Only (No Website)" || selectedBrand.webStatus === "Password-Locked Drop Site";
+
+  const sequenceTouches = isZeroWebOrDrop ? [
+    {
+      step: "TOUCH 01",
+      day: "Day 1",
+      channel: "Instagram DM",
+      title: "Founder Direct DM // The Flagship Prototype",
+      subject: "Instagram Direct Message",
+      body: `Hey ${selectedBrand.name} team — huge respect for the craft and visual direction. Noticed you're currently routing orders through ${selectedBrand.webStatus}, which means you're likely losing ~60% of impulse international buyers who won't wait on manual DM replies or locked drop pages. I built a working prototype of a custom editorial flagship + automated configurator tailored specifically for ${selectedBrand.name} showing how it unlocks +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in captured orders: ${demoLink}`
+    },
+    {
+      step: "TOUCH 02",
+      day: "Day 3",
+      channel: "Cold Email",
+      title: "The Zero-to-One Flagship SOW",
+      subject: `Flagship blueprint: +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo by replacing ${selectedBrand.name}'s ${selectedBrand.webStatus}`,
+      body: `Hey ${selectedBrand.name} team,
+
+I’m the Principal E-Commerce Systems Architect at Billy Benjamin Consulting. 
+
+We audited ${selectedBrand.name} and modeled how replacing manual ${selectedBrand.webStatus} friction with a ${selectedBrand.metrics.turnaroundDays}-day turnkey editorial flagship captures an estimated +${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in net-new GMV (+${formatCurrency(selectedCalc.annualRevenueRecovered)}/year).
+
+Our architecture compounds 3 turnkey systems:
+1. ${selectedBrand.solutions[0].title} (+${selectedBrand.solutions[0].liftPercentage}% CVR lever)
+2. ${selectedBrand.solutions[1].title} (+${selectedBrand.solutions[1].liftPercentage}% AOV lever)
+3. ${selectedBrand.solutions[2].title} (+${selectedBrand.solutions[2].liftPercentage}% LTV lever)
+
+At a fixed engagement fee of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the architecture achieves full payback in ${selectedCalc.retainerPaybackDays} business days.
+
+We deployed the working prototype and interactive wireframes here:
+${demoLink}
+
+Open to sending over a 3-minute technical walkthrough if you're exploring launching a permanent storefront.
+
+Billy Benjamin
+Principal Architect, Billy Benjamin Consulting`
+    },
+    {
+      step: "TOUCH 03",
+      day: "Day 5",
+      channel: "LinkedIn InMail",
+      title: "Founder / Managing Director Note",
+      subject: `${selectedBrand.name} flagship transition & ${formatCurrency(selectedCalc.annualRevenueRecovered)} captured GMV`,
+      body: `Hi team — huge admirer of ${selectedBrand.name}'s craft and aesthetic positioning in ${selectedBrand.sector}.
+
+We engineer high-converting editorial flagships for independent cult labels. We modeled how transitioning from ${selectedBrand.webStatus} into an automated mobile storefront recaptures an estimated ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in leaked conversion revenue.
+
+We deployed a private working prototype and Statement of Work here:
+${demoLink}
+
+Would love to share the technical wireframe with your leadership if you have 5 minutes this week.`
+    },
+    {
+      step: "TOUCH 04",
+      day: "Day 8",
+      channel: "Breakup Email",
+      title: "Closing File & Flagship SOW",
+      subject: `Closing file: ${selectedBrand.name} ${selectedCalc.retainerPaybackDays}-day payback window`,
+      body: `Hey ${selectedBrand.name} team,
+
+Closing out your architectural file for now. At ${selectedBrand.metrics.turnaroundDays} business days turnaround and a fixed investment of ${formatCurrency(selectedBrand.metrics.implementationFeeUSD)}, the projected ${formatCurrency(selectedCalc.monthlyRevenueRecovered)}/mo in recaptured revenue achieves full payback in exactly ${selectedCalc.retainerPaybackDays} days post-launch.
+
+Whenever you're ready to transition off ${selectedBrand.webStatus} to a scalable flagship, your interactive audit and scope remain live here:
+${proposalLink}
+
+Best of luck with the upcoming drops,
+Billy Benjamin`
+    }
+  ] : [
     {
       step: "TOUCH 01",
       day: "Day 1",
@@ -188,7 +259,7 @@ Billy Benjamin`
     setTimeout(() => setCopiedTouchIndex(null), 2500);
   };
 
-  const sectors = ["All", "Skincare", "Bodycare", "Clinical Skincare", "Medicated Skincare", "Personal Care", "Fashion/Streetwear", "Functional F&B", "Home/Fragrance/Tech"];
+  const sectors = ["All", ...Array.from(new Set(allBrands.map(b => b.sector)))];
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-950 dark:text-zinc-50 transition-colors duration-150 flex flex-col font-sans selection:bg-zinc-950 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-950">
@@ -201,7 +272,7 @@ Billy Benjamin`
           <div className="flex items-center gap-4">
             <BrandLogo showBadge={true} />
             <div className="hidden xl:flex items-center pl-4 border-l border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 dark:text-zinc-400">
-              <span>GLOBAL D2C REVENUE INTELLIGENCE OS</span>
+              <span>GLOBAL D2C REVENUE INTELLIGENCE OS // 50 TARGETS</span>
             </div>
           </div>
 
@@ -213,7 +284,7 @@ Billy Benjamin`
             <button
               onClick={resetAllToDefaults}
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
-              title="Reset all 20 brands back to default data"
+              title="Reset all 50 brands back to default data"
             >
               <RefreshCw size={14} strokeWidth={1.5} />
               <span>Reset Archive</span>
@@ -234,7 +305,7 @@ Billy Benjamin`
           
           <div className="p-3.5 lg:px-6">
             <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
-              Total Addressable Leak (20 Brands)
+              Total Addressable Leak (50 Targets)
             </span>
             <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
               {formatCurrency(aggregateMetrics.totalAddressableAnnualLeak, true)}
@@ -256,7 +327,7 @@ Billy Benjamin`
               Brands In Outbound Sequence
             </span>
             <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
-              {aggregateMetrics.brandsInSequenceCount} <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">/ 20</span>
+              {aggregateMetrics.brandsInSequenceCount} <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">/ {aggregateMetrics.totalBrandsCount || 50}</span>
             </span>
           </div>
 
@@ -266,7 +337,7 @@ Billy Benjamin`
                 Targeted ARR Universe
               </span>
               <span className="text-lg lg:text-xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums">
-                $5M – $100M+
+                $1M – $100M+
               </span>
             </div>
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
@@ -282,28 +353,49 @@ Billy Benjamin`
         <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 transition-colors">
           
           {/* Controls Bar: Filters & View Modes */}
-          <div className="p-3 lg:px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 transition-colors">
+          <div className="p-3 lg:px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col gap-3 transition-colors">
             
-            {/* Search Input */}
-            <div className="relative w-full sm:w-72">
-              <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
-              <input
-                type="text"
-                placeholder="Search 20 global targets..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none rounded-none"
-              />
-            </div>
+            {/* Row 1: Discovery Tier Filter Pills + View Switcher */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="inline-flex items-center border border-zinc-200 dark:border-zinc-800 p-0.5 bg-zinc-100 dark:bg-zinc-900 text-xs font-mono">
+                <button
+                  onClick={() => setActiveTier('All')}
+                  className={`px-3 py-1 font-semibold uppercase tracking-wider transition-colors ${
+                    activeTier === 'All'
+                      ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 shadow-sm'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  All 50 Brands
+                </button>
+                <button
+                  onClick={() => setActiveTier('Tier 1')}
+                  className={`px-3 py-1 font-semibold uppercase tracking-wider transition-colors ${
+                    activeTier === 'Tier 1'
+                      ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 shadow-sm'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  Tier 1: Scaled D2C ({aggregateMetrics.tier1Count || 20})
+                </button>
+                <button
+                  onClick={() => setActiveTier('Tier 2')}
+                  className={`px-3 py-1 font-semibold uppercase tracking-wider transition-colors ${
+                    activeTier === 'Tier 2'
+                      ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 border border-zinc-200 dark:border-zinc-700 shadow-sm'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  Tier 2: Undiscovered & Zero-Web Gems ({aggregateMetrics.tier2Count || 30})
+                </button>
+              </div>
 
-            {/* Sector Filters & View Mode */}
-            <div className="flex items-center gap-2 overflow-x-auto">
-              <div className="flex items-center border border-zinc-200 dark:border-zinc-800 divide-x divide-zinc-200 dark:divide-zinc-800 text-xs font-mono">
+              <div className="flex items-center border border-zinc-200 dark:border-zinc-800 divide-x divide-zinc-200 dark:divide-zinc-800 text-xs font-mono shrink-0">
                 <button
                   onClick={() => setViewMode('table')}
                   className={`px-3 py-1.5 transition-colors ${viewMode === 'table' ? 'bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 font-semibold' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                 >
-                  TABLE
+                  TABLE ({brands.length})
                 </button>
                 <button
                   onClick={() => setViewMode('kanban')}
@@ -312,18 +404,35 @@ Billy Benjamin`
                   PIPELINE (5)
                 </button>
               </div>
-
-              {/* Sector selector dropdown */}
-              <select
-                value={activeSector}
-                onChange={(e) => setActiveSector(e.target.value)}
-                className="text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 px-2.5 py-1.5 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100"
-              >
-                {sectors.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
             </div>
+
+            {/* Row 2: Search Input & Sector selector */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative w-full sm:w-80">
+                <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+                <input
+                  type="text"
+                  placeholder="Search 50 global targets by brand, city, status..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:border-zinc-950 dark:focus:border-zinc-100 focus:outline-none rounded-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 overflow-x-auto">
+                <span className="text-[10px] font-mono uppercase text-zinc-500 dark:text-zinc-400 shrink-0">Filter Sector:</span>
+                <select
+                  value={activeSector}
+                  onChange={(e) => setActiveSector(e.target.value)}
+                  className="text-xs font-mono border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 px-2.5 py-1.5 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100"
+                >
+                  {sectors.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
           </div>
 
           {/* View Mode 1: Table Matrix View */}
@@ -332,7 +441,7 @@ Billy Benjamin`
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 font-mono text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider sticky top-0 z-10 transition-colors">
-                    <th className="py-2.5 px-4 font-medium">Brand & Location</th>
+                    <th className="py-2.5 px-4 font-medium">Brand & Storefront Status</th>
                     <th className="py-2.5 px-3 font-medium">Sector</th>
                     <th className="py-2.5 px-3 font-medium text-right">Traffic/Mo</th>
                     <th className="py-2.5 px-3 font-medium text-right">CVR</th>
@@ -370,9 +479,24 @@ Billy Benjamin`
                             <span>{brand.name}</span>
                             {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 dark:bg-zinc-100" />}
                           </div>
-                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block">
-                            {brand.hqLocation}
-                          </span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">
+                              {brand.hqLocation}
+                            </span>
+                            {brand.webStatus === "IG DM / Linktree Only (No Website)" ? (
+                              <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider border-2 border-zinc-950 dark:border-zinc-100 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950">
+                                IG DM ONLY
+                              </span>
+                            ) : brand.webStatus === "Password-Locked Drop Site" ? (
+                              <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider border border-zinc-500 dark:border-zinc-400 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
+                                LOCKED DROP
+                              </span>
+                            ) : (
+                              <span className="inline-block px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400">
+                                MICRO-STORE
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3 px-3 text-zinc-600 dark:text-zinc-300 font-sans">
                           {brand.sector}
@@ -444,7 +568,15 @@ Billy Benjamin`
                             <span className="font-sans font-bold text-sm text-zinc-950 dark:text-zinc-50">{b.name}</span>
                             <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">${b.metrics.currentAOV}</span>
                           </div>
-                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block mt-0.5">{b.sector}</span>
+                          
+                          <div className="flex items-center justify-between gap-1 mt-1">
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono block">{b.sector}</span>
+                            {b.webStatus === "IG DM / Linktree Only (No Website)" ? (
+                              <span className="px-1.5 py-0.2 text-[8px] font-mono font-bold uppercase border-2 border-zinc-950 dark:border-zinc-100 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950">IG DM ONLY</span>
+                            ) : b.webStatus === "Password-Locked Drop Site" ? (
+                              <span className="px-1.5 py-0.2 text-[8px] font-mono font-medium uppercase border border-zinc-500 dark:border-zinc-400 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">LOCKED DROP</span>
+                            ) : null}
+                          </div>
                           
                           <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[10px] font-mono">
                             <span className="text-zinc-500 dark:text-zinc-400">{formatNumber(b.metrics.monthlyTraffic)}/mo</span>
@@ -461,8 +593,8 @@ Billy Benjamin`
 
           {/* Left Footer: Brand Counter */}
           <div className="p-2.5 px-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[11px] font-mono text-zinc-500 dark:text-zinc-400 flex items-center justify-between transition-colors">
-            <span>SHOWING {brands.length} OF 20 VERIFIED GLOBAL ACCOUNTS</span>
-            <span>DIETER RAMS ARCHITECTURAL MONOCHROME // DUAL-THEME ENGINE</span>
+            <span>SHOWING {brands.length} OF {allBrands.length} GLOBAL DOSSIERS ({activeTier === 'All' ? 'TIER 1 + TIER 2' : activeTier})</span>
+            <span>DIETER RAMS ARCHITECTURAL MONOCHROME // 50 TARGETS</span>
           </div>
         </div>
 
@@ -493,6 +625,20 @@ Billy Benjamin`
                   <span>{selectedBrand.hqLocation}</span>
                   <span>•</span>
                   <span>Turnaround: {selectedBrand.metrics.turnaroundDays} Days</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className="text-[10px] font-mono px-2 py-0.5 border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
+                    {selectedBrand.discoveryTier || 'Tier 1: Scaled D2C'}
+                  </span>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 border font-semibold ${
+                    selectedBrand.webStatus === "IG DM / Linktree Only (No Website)"
+                      ? 'border-2 border-zinc-950 dark:border-zinc-100 bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold'
+                      : selectedBrand.webStatus === "Password-Locked Drop Site"
+                      ? 'border border-zinc-500 dark:border-zinc-400 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
+                      : 'border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400'
+                  }`}>
+                    {selectedBrand.webStatus || 'Unoptimized Micro-Store'}
+                  </span>
                 </div>
               </div>
 

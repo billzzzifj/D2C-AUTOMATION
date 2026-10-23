@@ -153,7 +153,7 @@ ${brand.name}`)}`;
               1. Engagement Objective & Scope
             </h2>
             <p className="text-sm font-sans text-zinc-800 dark:text-zinc-200 print:text-black leading-relaxed">
-              This Statement of Work ("SOW") authorizes Billy Benjamin Consulting to engineer, deploy, and benchmark 3 bespoke conversion and revenue-architecture systems across {brand.name}'s digital storefront ({brand.website}). All interventions are designed to eradicate existing architectural bottlenecks ("{brand.forensicAudit.primaryFrictionHeadline}") and compound monthly throughput across CVR, AOV, and Repeat LTV.
+              This Statement of Work ("SOW") authorizes Billy Benjamin Consulting to engineer, deploy, and benchmark 3 bespoke conversion and revenue-architecture systems across {brand.name}'s digital storefront ({brand.website}). All interventions are designed to eradicate existing architectural bottlenecks ("{brand.forensicAudit.primaryFrictionHeadline}") and compound monthly throughput across CVR, AOV, and Repeat LTV{brand.webStatus === "IG DM / Linktree Only (No Website)" ? ', transitioning the brand into a fully automated, high-converting digital flagship' : ''}.
             </p>
           </div>
 

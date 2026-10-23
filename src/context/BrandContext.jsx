@@ -3,7 +3,7 @@ import { GLOBAL_D2C_TARGETS, PIPELINE_STAGES } from '../data/globalD2CTargets';
 import { calculateRevenueImpact } from '../utils/revenueMath';
 
 const BrandContext = createContext(null);
-const STORAGE_KEY = 'billy_benjamin_d2c_archive_v4';
+const STORAGE_KEY = 'billy_benjamin_d2c_archive_v5';
 
 export function BrandProvider({ children }) {
   const [brands, setBrands] = useState(() => {
@@ -23,6 +23,7 @@ export function BrandProvider({ children }) {
 
   const [selectedBrandId, setSelectedBrandId] = useState(GLOBAL_D2C_TARGETS[0].id);
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'kanban'
+  const [activeTier, setActiveTier] = useState('All'); // 'All' | 'Tier 1' | 'Tier 2'
   const [activeSector, setActiveSector] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
@@ -79,10 +80,10 @@ export function BrandProvider({ children }) {
   };
 
   const resetAllToDefaults = () => {
-    if (window.confirm('Reset all 20 brands back to master default archive state?')) {
+    if (window.confirm('Reset all 50 brands back to master default archive state?')) {
       setBrands(GLOBAL_D2C_TARGETS);
       localStorage.removeItem(STORAGE_KEY);
-      showToast('Master archive restored to factory defaults');
+      showToast('Master archive restored to factory defaults (50 targets)');
     }
   };
 
@@ -91,6 +92,8 @@ export function BrandProvider({ children }) {
     const headers = [
       "Brand Name",
       "Slug",
+      "Discovery Tier",
+      "Storefront Status",
       "Sector",
       "HQ Location",
       "Website",
@@ -121,6 +124,8 @@ export function BrandProvider({ children }) {
       return [
         `"${b.name}"`,
         `"${b.slug}"`,
+        `"${b.discoveryTier || 'Tier 1: Scaled D2C'}"`,
+        `"${b.webStatus || 'Unoptimized Micro-Store'}"`,
         `"${b.sector}"`,
         `"${b.hqLocation}"`,
         `"${b.website}"`,
@@ -146,7 +151,7 @@ export function BrandProvider({ children }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast('Exported Master Pipeline CSV');
+    showToast('Exported Master Pipeline CSV (50 Targets)');
   };
 
   // Aggregate telemetry
@@ -154,6 +159,8 @@ export function BrandProvider({ children }) {
     let totalAddressableAnnualLeak = 0;
     let activePipelineRetainerValue = 0;
     let brandsInSequenceCount = 0;
+    let tier1Count = 0;
+    let tier2Count = 0;
 
     brands.forEach(b => {
       const calc = calculateRevenueImpact({
@@ -168,6 +175,12 @@ export function BrandProvider({ children }) {
 
       totalAddressableAnnualLeak += calc.annualRevenueRecovered;
 
+      if (b.discoveryTier === 'Tier 1: Scaled D2C') {
+        tier1Count++;
+      } else {
+        tier2Count++;
+      }
+
       if (b.status === 'Sequence Active' || b.status === 'Audit Viewed' || b.status === 'Call Booked') {
         activePipelineRetainerValue += b.metrics.implementationFeeUSD;
         brandsInSequenceCount++;
@@ -180,27 +193,34 @@ export function BrandProvider({ children }) {
       totalAddressableAnnualLeak,
       activePipelineRetainerValue,
       brandsInSequenceCount,
-      totalBrandsCount: brands.length
+      totalBrandsCount: brands.length,
+      tier1Count,
+      tier2Count
     };
   }, [brands]);
 
   // Filtered brands
   const filteredBrands = useMemo(() => {
     return brands.filter(b => {
+      const matchesTier = activeTier === 'All' ||
+        (activeTier === 'Tier 1' && b.discoveryTier === 'Tier 1: Scaled D2C') ||
+        (activeTier === 'Tier 2' && b.discoveryTier === 'Tier 2: Undiscovered / Zero-Web');
       const matchesSector = activeSector === 'All' || b.sector === activeSector;
       const query = searchQuery.toLowerCase().trim();
       const matchesQuery = !query ||
         b.name.toLowerCase().includes(query) ||
         b.sector.toLowerCase().includes(query) ||
         b.instagram.handle.toLowerCase().includes(query) ||
-        b.hqLocation.toLowerCase().includes(query);
-      return matchesSector && matchesQuery;
+        b.hqLocation.toLowerCase().includes(query) ||
+        (b.webStatus && b.webStatus.toLowerCase().includes(query));
+      return matchesTier && matchesSector && matchesQuery;
     });
-  }, [brands, activeSector, searchQuery]);
+  }, [brands, activeTier, activeSector, searchQuery]);
 
   const selectedBrand = useMemo(() => {
-    return brands.find(b => b.id === selectedBrandId) || brands[0];
-  }, [brands, selectedBrandId]);
+    // If selectedBrandId is in filteredBrands, pick it, else fallback to first in filteredBrands or all brands
+    return filteredBrands.find(b => b.id === selectedBrandId) || filteredBrands[0] || brands[0];
+  }, [brands, filteredBrands, selectedBrandId]);
 
   return (
     <BrandContext.Provider
@@ -213,6 +233,8 @@ export function BrandProvider({ children }) {
         setSelectedBrandId,
         viewMode,
         setViewMode,
+        activeTier,
+        setActiveTier,
         activeSector,
         setActiveSector,
         searchQuery,

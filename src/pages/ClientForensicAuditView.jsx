@@ -130,7 +130,11 @@ export default function ClientForensicAuditView() {
             </Link>
             <div className="hidden md:flex items-center pl-4 border-l border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-500 dark:text-zinc-400">
               <Lock size={12} strokeWidth={1.5} className="mr-1.5 text-zinc-700 dark:text-zinc-300" />
-              <span>CONFIDENTIAL ARCHITECTURAL AUDIT</span>
+              <span>
+                {brand.webStatus === "IG DM / Linktree Only (No Website)"
+                  ? "ZERO-TO-ONE FLAGSHIP BLUEPRINT"
+                  : "CONFIDENTIAL ARCHITECTURAL AUDIT"}
+              </span>
             </div>
           </div>
 
@@ -189,7 +193,13 @@ export default function ClientForensicAuditView() {
 
             <div className="text-left md:text-right font-mono text-xs">
               <span className="text-zinc-500 dark:text-zinc-400 block text-[10px] uppercase">Audit Classification</span>
-              <span className="font-bold text-zinc-950 dark:text-zinc-50 block">TIER 1 D2C ENTERPRISE</span>
+              <span className="font-bold text-zinc-950 dark:text-zinc-50 block">
+                {brand.webStatus === "IG DM / Linktree Only (No Website)" 
+                  ? "ZERO-TO-ONE FLAGSHIP & FUNNEL ARCHITECTURE BLUEPRINT"
+                  : brand.discoveryTier === "Tier 2: Undiscovered / Zero-Web"
+                  ? "EMERGING FLAGSHIP ARCHITECTURE AUDIT"
+                  : "TIER 1 D2C ENTERPRISE"}
+              </span>
               <span className="text-zinc-500 dark:text-zinc-400 text-[11px] block mt-0.5">REF: BBC-2026-{brand.slug.toUpperCase()}</span>
             </div>
           </div>
@@ -351,7 +361,9 @@ export default function ClientForensicAuditView() {
               
               <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
-                  Current Monthly Baseline
+                  {brand.webStatus === "IG DM / Linktree Only (No Website)"
+                    ? "DM / Linktree Baseline"
+                    : "Current Monthly Baseline"}
                 </span>
                 <span className="text-2xl font-bold font-mono text-zinc-800 dark:text-zinc-200 tabular-nums block mt-1">
                   {formatCurrency(calc.currentMonthlyTotalRevenue)}
@@ -363,7 +375,9 @@ export default function ClientForensicAuditView() {
 
               <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 dark:text-zinc-400 block">
-                  Engineered Monthly Projection
+                  {brand.webStatus === "IG DM / Linktree Only (No Website)"
+                    ? "Deployed Flagship Storefront"
+                    : "Engineered Monthly Projection"}
                 </span>
                 <span className="text-2xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tabular-nums block mt-1">
                   {formatCurrency(calc.projectedMonthlyTotalRevenue)}
@@ -402,7 +416,9 @@ export default function ClientForensicAuditView() {
             {/* Horizontal Architectural Comparison Bars */}
             <div className="p-5 border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 space-y-4 font-mono text-xs">
               <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400 block font-bold">
-                Architectural Multiplier Shifts (Current vs. Engineered)
+                {brand.webStatus === "IG DM / Linktree Only (No Website)"
+                  ? "Architectural Multiplier Shifts (DM / Linktree Baseline vs. Deployed Flagship Storefront)"
+                  : "Architectural Multiplier Shifts (Current vs. Engineered)"}
               </span>
 
               {/* CVR Bar */}
